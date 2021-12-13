@@ -1,8 +1,10 @@
 /* (C) Kengo TODA 2021 */
 package jp.skypencil.flix
 
+import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
@@ -58,7 +60,7 @@ enum Shape {
     case Rectangle(Int32, Int32)
 }
 
-def area(s: Shape): Int32 = match s {
+pub def area(s: Shape): Int32 = match s {
     case Circle(r)       => 3 * (r * r)
     case Square(w)       => w * w
     case Rectangle(h, w) => h * w
@@ -69,11 +71,15 @@ def area(s: Shape): Int32 = match s {
     val runner = GradleRunner.create()
     runner.forwardOutput()
     runner.withPluginClasspath()
-    runner.withArguments(":compileFlix", "-S")
+    runner.withArguments(":compileFlix")
     runner.withProjectDir(getProjectDir())
     val result = runner.build()
 
     // Verify the result
     assertEquals(TaskOutcome.SUCCESS, result.task(":compileFlix")?.outcome)
+    System.err.println(
+        Arrays.toString(getProjectDir().resolve("build/classes/flix/main").listFiles()))
+    // TODO why no Shape.class file?
+    assertTrue(getProjectDir().resolve("build/classes/flix/main/RecordEmpty.class").isFile)
   }
 }

@@ -1,6 +1,7 @@
 /* (C) Kengo TODA 2021 */
 package jp.skypencil.flix
 
+import de.undercouch.gradle.tasks.download.Download
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginExtension
@@ -17,13 +18,20 @@ class FlixPlugin : Plugin<Project> {
       sourceSets = project.objects.domainObjectContainer(FlixSourceSet::class.java)
     }
 
+    val src =
+        extension.compilerVersion.map {
+          "https://github.com/flix/flix/releases/download/$it/flix.jar"
+        }
+    val dest = extension.compilerVersion.map { project.buildDir.resolve("flix/$it/flix.jar") }
+    val downloadFlixCompiler =
+        project.tasks.register("downloadFlixCompiler", Download::class.java) { download ->
+          download.src(src)
+          download.dest(dest)
+        }
+
     val flixCompiler = project.configurations.create(CONFIGURATION_FOR_COMPILER)
     flixCompiler.defaultDependencies { dependencySet ->
-      val dependency =
-          project.dependencies.create(
-              extension.compilerVersion.map {
-                "https://github.com/flix/flix/releases/download/${ it }/flix.jar"
-              })
+      val dependency = project.dependencies.create(project.files(dest))
       dependencySet.add(dependency)
     }
 
@@ -41,10 +49,11 @@ class FlixPlugin : Plugin<Project> {
                   .setSrcDirs(listOf("src/main/resources"))
         }
     project.tasks.register(mainSourceSet.getCompileTaskName(), FlixCompile::class.java) { task ->
+      task.dependsOn(downloadFlixCompiler)
       task.source = mainSourceSet.source
-      task.destinationDirectory.set(project.file("${project.buildDir}/flix/${task.name}"))
-      // TODO configure classpath
-      task.classpath = project.objects.fileCollection()
+      task.destinationDirectory.set(project.file("${project.buildDir}/classes/flix/main"))
+      flixCompiler.resolve()
+      task.classpath = project.files(dest)
       // TODO support java toolchain
       // task.jvmToolchain.convention(extension.jvmToolchain)
     }

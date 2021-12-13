@@ -2,9 +2,9 @@
 package jp.skypencil.flix
 
 import ca.uwaterloo.flix.api.Flix
-import ca.uwaterloo.flix.tools.Packager
 import ca.uwaterloo.flix.util.Options
 import ca.uwaterloo.flix.util.vt.TerminalContext
+import org.gradle.api.GradleException
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.compile.AbstractCompile
@@ -53,6 +53,18 @@ abstract class FlixCompile() : AbstractCompile() {
 
     // TODO apply the Worker API
     // TODO hack Packager to stop throwing "does not appear to be a flix project" error
-    Packager.buildJar(project.rootDir.toPath(), options, TerminalContext.`AnsiTerminal$`.`MODULE$`)
+
+    flix.setOptions(options)
+    val context = TerminalContext.`AnsiTerminal$`.`MODULE$`
+    val compileResult = flix.compile()
+    when {
+      compileResult.errors().isEmpty -> {
+        logger.debug("Flix code has been compiled successfully.")
+      }
+      else -> {
+        compileResult.errors().foreach { logger.error(it.message().fmt(context)) }
+        throw GradleException("Failed to compile Flix code")
+      }
+    }
   }
 }

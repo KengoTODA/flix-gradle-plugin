@@ -4,12 +4,16 @@ plugins {
   id("com.diffplug.spotless") version "6.0.4"
 }
 
-repositories { mavenCentral() }
+repositories {
+  mavenCentral()
+  gradlePluginPortal()
+}
 
 java { toolchain { languageVersion.set(JavaLanguageVersion.of("11")) } }
 
 dependencies {
   implementation(files("lib/flix.jar"))
+  implementation("de.undercouch:gradle-download-task:4.1.2")
 
   // Align versions of all Kotlin components
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
