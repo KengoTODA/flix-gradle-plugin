@@ -5,7 +5,9 @@ import de.undercouch.gradle.tasks.download.Download
 import java.util.Properties
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.jvm.tasks.Jar
 
 class FlixPlugin : Plugin<Project> {
   private fun loadCompilerVersion(): String {
@@ -75,7 +77,12 @@ class FlixPlugin : Plugin<Project> {
           // TODO support java toolchain
           // task.jvmToolchain.convention(extension.jvmToolchain)
         }
-    project.tasks.named("classes") { it.dependsOn(compileFlix) }
+    project.plugins.withId("java") {
+      project.tasks.named(JavaPlugin.CLASSES_TASK_NAME) { it.dependsOn(compileFlix) }
+      project.tasks.named(JavaPlugin.JAR_TASK_NAME, Jar::class.java) { jar ->
+        jar.from(mainSourceSet.output)
+      }
+    }
   }
 
   companion object {
