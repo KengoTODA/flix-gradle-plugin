@@ -2,8 +2,8 @@ import de.undercouch.gradle.tasks.download.Download
 
 plugins {
   `java-gradle-plugin`
+  `convention-plugin`
   id("org.jetbrains.kotlin.jvm") version "1.6.0"
-  id("com.diffplug.spotless") version "6.0.4"
   id("de.undercouch.download") version "4.1.2"
 }
 
@@ -13,8 +13,6 @@ repositories {
   mavenCentral()
   gradlePluginPortal()
 }
-
-java { toolchain { languageVersion.set(JavaLanguageVersion.of("11")) } }
 
 val downloadFlixCompiler =
     tasks.register<Download>("downloadFlixCompiler") {
@@ -29,7 +27,7 @@ val processVersionFile =
       property("compiler-version", flixCompilerVersion)
     }
 
-tasks.processResources { dependsOn(processVersionFile) }
+tasks.named<Task>("processResources") { dependsOn(processVersionFile) }
 
 dependencies {
   implementation(downloadFlixCompiler.map { it.outputs.files })
@@ -69,13 +67,5 @@ val functionalTest by
 gradlePlugin.testSourceSets(functionalTestSourceSet)
 
 tasks.named<Task>("check") { dependsOn(functionalTest) }
-
-configure<com.diffplug.gradle.spotless.SpotlessExtension> {
-  kotlin {
-    ktfmt()
-    licenseHeader("/* (C) Kengo TODA \$YEAR */")
-  }
-  kotlinGradle { ktfmt() }
-}
 
 defaultTasks("spotlessApply", "build")
