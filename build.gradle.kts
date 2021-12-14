@@ -30,7 +30,7 @@ val processVersionFile =
 tasks.named<Task>("processResources") { dependsOn(processVersionFile) }
 
 dependencies {
-  implementation(downloadFlixCompiler.map { it.outputs.files })
+  compileOnly(downloadFlixCompiler.map { it.outputs.files })
   implementation("de.undercouch:gradle-download-task:4.1.2")
 
   // Align versions of all Kotlin components
@@ -44,6 +44,7 @@ dependencies {
 
   // Use the Kotlin JUnit integration.
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+  testImplementation(downloadFlixCompiler.map { it.outputs.files })
 }
 
 gradlePlugin {
