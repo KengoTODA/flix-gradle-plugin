@@ -58,13 +58,18 @@ class FlixPlugin : Plugin<Project> {
                   .objects
                   .sourceDirectorySet("resources", "Flix main resource")
                   .setSrcDirs(listOf("src/main/resources"))
+          output =
+              project
+                  .objects
+                  .directoryProperty()
+                  .fileValue(project.file("${project.buildDir}/classes/flix/main"))
         }
     val compileFlix =
         project.tasks.register(mainSourceSet.getCompileTaskName(), FlixCompile::class.java) { task
           ->
           task.dependsOn(downloadFlixCompiler)
           task.source = mainSourceSet.source
-          task.destinationDirectory.set(project.file("${project.buildDir}/classes/flix/main"))
+          task.destinationDirectory.set(mainSourceSet.output)
           flixCompiler.resolve()
           task.classpath = project.files(dest)
           // TODO support java toolchain
