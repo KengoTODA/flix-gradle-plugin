@@ -5,6 +5,8 @@ import de.undercouch.gradle.tasks.download.Download
 import java.util.Properties
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.ApplicationPlugin
+import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.jvm.tasks.Jar
@@ -70,6 +72,9 @@ class FlixPlugin : Plugin<Project> {
       project.tasks.named(JavaPlugin.JAR_TASK_NAME, Jar::class.java) { jar ->
         jar.from(mainSourceSet.output)
       }
+    }
+    project.plugins.withId(ApplicationPlugin.APPLICATION_PLUGIN_NAME) {
+      project.extensions.getByType(JavaApplication::class.java).mainClass.set("Main")
     }
   }
 
