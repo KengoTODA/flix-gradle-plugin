@@ -64,8 +64,6 @@ class FlixPlugin : Plugin<Project> {
           task.destinationDirectory.set(mainSourceSet.output)
           flixCompiler.resolve()
           task.classpath = project.files(dest)
-          // TODO support java toolchain
-          // task.jvmToolchain.convention(extension.jvmToolchain)
         }
     project.plugins.withId("java") {
       project.tasks.named(JavaPlugin.CLASSES_TASK_NAME) { it.dependsOn(compileFlix) }

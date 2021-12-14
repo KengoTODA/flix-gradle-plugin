@@ -47,13 +47,6 @@ abstract class FlixCompile() : AbstractCompile() {
       }
     }
 
-    // TODO put downloaded jar file to the classpath when launch a worker
-    // val flixCompiler = project.configurations.getByName(FlixPlugin.CONFIGURATION_FOR_COMPILER)
-    // project.files(flixCompiler)
-
-    // TODO apply the Worker API
-    // TODO hack Packager to stop throwing "does not appear to be a flix project" error
-
     flix.setOptions(options)
     val context = TerminalContext.`AnsiTerminal$`.`MODULE$`
     val compileResult = flix.compile()

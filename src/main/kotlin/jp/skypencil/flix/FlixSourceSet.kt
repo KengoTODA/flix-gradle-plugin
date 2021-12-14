@@ -4,8 +4,7 @@ package jp.skypencil.flix
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.SourceDirectorySet
 
-abstract class FlixSourceSet(name: String) {
-  val name = name
+abstract class FlixSourceSet(val name: String) {
 
   lateinit var source: SourceDirectorySet
 
