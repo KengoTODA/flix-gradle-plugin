@@ -2,11 +2,22 @@
 package jp.skypencil.flix
 
 import de.undercouch.gradle.tasks.download.Download
+import java.util.Properties
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginExtension
 
 class FlixPlugin : Plugin<Project> {
+  private fun loadCompilerVersion(): String {
+    // TODO this `input` could be null
+    val input = FlixPlugin::class.java.getResourceAsStream("flix-gradle-plugin.properties")
+    input.use {
+      val prop = Properties()
+      prop.load(input)
+      return prop.getProperty("compiler-version")
+    }
+  }
+
   override fun apply(project: Project) {
     project.plugins.apply("java-base")
     val javaExtension = project.extensions.findByType(JavaPluginExtension::class.java)!!

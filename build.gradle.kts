@@ -1,8 +1,13 @@
+import de.undercouch.gradle.tasks.download.Download
+
 plugins {
   `java-gradle-plugin`
   id("org.jetbrains.kotlin.jvm") version "1.6.0"
   id("com.diffplug.spotless") version "6.0.4"
+  id("de.undercouch.download") version "4.1.2"
 }
+
+val flixCompilerVersion = "v0.25.0"
 
 repositories {
   mavenCentral()
@@ -11,8 +16,23 @@ repositories {
 
 java { toolchain { languageVersion.set(JavaLanguageVersion.of("11")) } }
 
+val downloadFlixCompiler =
+    tasks.register<Download>("downloadFlixCompiler") {
+      src("https://github.com/flix/flix/releases/download/$flixCompilerVersion/flix.jar")
+      dest("$buildDir/flix/flix-$flixCompilerVersion.jar")
+      onlyIfModified(true)
+    }
+
+val processVersionFile =
+    tasks.register<WriteProperties>("processVersionFile") {
+      outputFile = file("$buildDir/resources/main/flix-gradle-plugin.properties")
+      property("compiler-version", flixCompilerVersion)
+    }
+
+tasks.processResources { dependsOn(processVersionFile) }
+
 dependencies {
-  implementation(files("lib/flix.jar"))
+  implementation(downloadFlixCompiler.map { it.outputs.files })
   implementation("de.undercouch:gradle-download-task:4.1.2")
 
   // Align versions of all Kotlin components

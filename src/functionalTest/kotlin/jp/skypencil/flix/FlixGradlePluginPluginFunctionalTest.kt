@@ -51,20 +51,13 @@ plugins {
 """)
     getProjectDir().resolve("src/main/flix").mkdirs()
     getProjectDir()
-        .resolve("src/main/flix/main.flix")
+        .resolve("src/main/flix/Main.flix")
         .writeText(
             """
-enum Shape {
-    case Circle(Int32),
-    case Square(Int32),
-    case Rectangle(Int32, Int32)
-}
-
-pub def area(s: Shape): Int32 = match s {
-    case Circle(r)       => 3 * (r * r)
-    case Square(w)       => w * w
-    case Rectangle(h, w) => h * w
-}
+// The main entry point.
+def main(_args: Array[String]): Int32 & Impure =
+  Console.printLine("Hello World!");
+  0 // exit code
 """)
 
     // Run the build
@@ -77,9 +70,6 @@ pub def area(s: Shape): Int32 = match s {
 
     // Verify the result
     assertEquals(TaskOutcome.SUCCESS, result.task(":compileFlix")?.outcome)
-    System.err.println(
-        Arrays.toString(getProjectDir().resolve("build/classes/flix/main").listFiles()))
-    // TODO why no Shape.class file?
-    assertTrue(getProjectDir().resolve("build/classes/flix/main/RecordEmpty.class").isFile)
+    assertTrue(getProjectDir().resolve("build/classes/flix/main/Main.class").isFile)
   }
 }
