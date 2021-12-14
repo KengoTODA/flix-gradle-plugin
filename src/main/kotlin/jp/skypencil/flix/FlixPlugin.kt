@@ -71,15 +71,18 @@ class FlixPlugin : Plugin<Project> {
       project.tasks.named(JavaPlugin.CLASSES_TASK_NAME) { it.dependsOn(compileFlix) }
       project.tasks.named(JavaPlugin.JAR_TASK_NAME, Jar::class.java) { jar ->
         jar.from(mainSourceSet.output)
+        // TODO do we really need this even when `application` plugin exists?
+        jar.manifest.attributes["Main-Class"] = DEFAULT_MAIN_CLASS
       }
     }
     project.plugins.withId(ApplicationPlugin.APPLICATION_PLUGIN_NAME) {
-      project.extensions.getByType(JavaApplication::class.java).mainClass.set("Main")
+      project.extensions.getByType(JavaApplication::class.java).mainClass.set(DEFAULT_MAIN_CLASS)
     }
   }
 
   companion object {
     const val CONFIGURATION_FOR_COMPILER = "flixCompiler"
+    const val DEFAULT_MAIN_CLASS = "Main"
     private const val PROPERTIES_FILE_NAME = "flix-gradle-plugin.properties"
 
     fun loadCompilerVersion(): String {
