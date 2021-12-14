@@ -6,7 +6,7 @@ import kotlin.test.assertNotNull
 import org.gradle.testfixtures.ProjectBuilder
 
 /** A simple unit test for the 'jp.skypencil.flix.greeting' plugin. */
-class FlixGradlePluginPluginTest {
+class FlixPluginTest {
   @Test
   fun `plugin registers task`() {
     // Create a test project and apply the plugin
@@ -15,5 +15,10 @@ class FlixGradlePluginPluginTest {
 
     // Verify the result
     assertNotNull(project.tasks.findByName("compileFlix"))
+  }
+
+  @Test
+  fun `plugin loads compiler version from a resource`() {
+    assertNotNull(FlixPlugin.Companion.loadCompilerVersion())
   }
 }

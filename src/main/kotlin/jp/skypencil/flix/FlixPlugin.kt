@@ -10,23 +10,13 @@ import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.jvm.tasks.Jar
 
 class FlixPlugin : Plugin<Project> {
-  private fun loadCompilerVersion(): String {
-    // TODO this `input` could be null
-    val input = FlixPlugin::class.java.getResourceAsStream("flix-gradle-plugin.properties")
-    input.use {
-      val prop = Properties()
-      prop.load(input)
-      return prop.getProperty("compiler-version")
-    }
-  }
-
   override fun apply(project: Project) {
     project.plugins.apply("java-base")
     val javaExtension = project.extensions.findByType(JavaPluginExtension::class.java)!!
 
     val extension = project.extensions.create("flix", FlixExtension::class.java)
     extension.apply {
-      compilerVersion.convention("v0.25.0")
+      compilerVersion.convention(loadCompilerVersion())
       jvmToolchain.convention(project.provider { javaExtension.toolchain })
       sourceSets = project.objects.domainObjectContainer(FlixSourceSet::class.java)
     }
@@ -87,5 +77,15 @@ class FlixPlugin : Plugin<Project> {
 
   companion object {
     const val CONFIGURATION_FOR_COMPILER = "flixCompiler"
+    private const val PROPERTIES_FILE_NAME = "flix-gradle-plugin.properties"
+
+    fun loadCompilerVersion(): String {
+      val url = FlixPlugin::class.java.classLoader.getResource(PROPERTIES_FILE_NAME)!!
+      url.openStream().use {
+        val prop = Properties()
+        prop.load(it)
+        return prop.getProperty("compiler-version")
+      }
+    }
   }
 }
