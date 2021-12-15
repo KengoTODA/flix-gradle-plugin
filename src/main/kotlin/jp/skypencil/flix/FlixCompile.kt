@@ -91,6 +91,9 @@ abstract class CompileAction : WorkAction<CompileParameter> {
 }
 
 interface CompileParameter : WorkParameters {
+  // TODO Cannot pass ConfigurableFileTree, so using FileCollection as workaround
+  // https://github.com/gradle/gradle/issues/18770
+  // https://github.com/gradle/gradle/issues/19174
   fun getSource(): ConfigurableFileCollection
   fun getClasspath(): ConfigurableFileCollection
   fun getDestinationDirectory(): DirectoryProperty
