@@ -9,9 +9,7 @@ import javax.inject.Inject
 import org.gradle.api.GradleException
 import org.gradle.api.file.*
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import org.gradle.api.tasks.compile.AbstractCompile
 import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.jvm.toolchain.JavaToolchainSpec
@@ -21,21 +19,18 @@ import org.gradle.workers.WorkerExecutor
 
 @CacheableTask
 abstract class FlixCompile : AbstractCompile() {
-  @get:Input
+  @get:Nested
+  @get:Optional
   val jvmToolchain: Property<JavaToolchainSpec> =
       project.objects.property(JavaToolchainSpec::class.java)
 
   @Inject abstract fun getWorkerExecutor(): WorkerExecutor
+  @Inject abstract fun getJavaToolchainService(): JavaToolchainService
 
   @TaskAction
   fun run() {
     val launcher =
-        jvmToolchain
-            .flatMap {
-              val service = project.extensions.getByType(JavaToolchainService::class.java)
-              service.launcherFor(it)
-            }
-            .map { it.executablePath }
+        jvmToolchain.flatMap { getJavaToolchainService().launcherFor(it) }.map { it.executablePath }
     val workQueue =
         if (launcher.isPresent) {
           getWorkerExecutor().processIsolation { workerSpec ->
