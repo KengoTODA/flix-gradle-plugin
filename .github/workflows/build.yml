@@ -4,7 +4,10 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: ['latest-windows', 'latest-ubuntu']
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - uses: gradle/wrapper-validation-action@v1
@@ -14,9 +17,9 @@ jobs:
           java-version: '17'
           distribution: temurin
           cache: gradle
-      - run: ./gradlew spotlessCheck build
+      - run: ./gradlew spotlessCheck build --no-daemon
       - uses: actions/upload-artifact@v2
         if: always()
         with:
-          name: reports
+          name: reports (${{ matrix.os }})
           path: build/reports
