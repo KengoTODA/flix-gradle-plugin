@@ -16,13 +16,13 @@ import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
 
 @CacheableTask
-abstract class FlixCompile() : AbstractCompile() {
+abstract class FlixCompile : AbstractCompile() {
   @Inject abstract fun getWorkerExecutor(): WorkerExecutor
 
   @TaskAction
   fun run() {
     val workQueue =
-        getWorkerExecutor().classLoaderIsolation() { workerSpec ->
+        getWorkerExecutor().classLoaderIsolation { workerSpec ->
           workerSpec.classpath.from(classpath)
         }
     workQueue.submit(CompileAction::class.java) {
@@ -58,7 +58,9 @@ abstract class CompileAction : WorkAction<CompileParameter> {
             defaultOptions.xstrictmono())
 
     val flix = Flix()
-    parameters.getSource().matching { it.include("*.flix") }.forEach { flix.addPath(it.toPath()) }
+    parameters.getSource().asFileTree.matching { it.include("*.flix") }.forEach {
+      flix.addPath(it.toPath())
+    }
     parameters.getClasspath().forEach {
       when {
         it.name.endsWith(".fpkg") -> flix.addPath(it.toPath())
@@ -89,7 +91,7 @@ abstract class CompileAction : WorkAction<CompileParameter> {
 }
 
 interface CompileParameter : WorkParameters {
-  fun getSource(): ConfigurableFileTree
+  fun getSource(): ConfigurableFileCollection
   fun getClasspath(): ConfigurableFileCollection
   fun getDestinationDirectory(): DirectoryProperty
 }
