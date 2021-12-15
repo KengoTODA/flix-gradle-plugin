@@ -7,6 +7,6 @@ import org.gradle.jvm.toolchain.JavaToolchainSpec
 
 interface FlixExtension {
   val compilerVersion: Property<String>
-  val jvmToolchain: Property<JavaToolchainSpec>
+  val jvmToolchain: JavaToolchainSpec
   var sourceSets: NamedDomainObjectContainer<FlixSourceSet>
 }

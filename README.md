@@ -37,7 +37,7 @@ configure<FlixExtension> {
 
 - [x] integrate with `application` plugin
 - [ ] add `testFlix` task
-- [ ] add a task to make a `.fpkg` file
+- [x] add a task to make a `.fpkg` file
 - [x] support the Gradle Java toolchain
 - [ ] support dependency management (based on [an investigation](https://gist.github.com/KengoTODA/3598bcd784d2904948fc38e40fef637e))
 - [ ] create a JUnit XML file based on test result

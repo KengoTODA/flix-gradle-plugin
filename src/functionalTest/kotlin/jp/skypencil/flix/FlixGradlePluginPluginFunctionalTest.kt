@@ -65,7 +65,7 @@ def main(_args: Array[String]): Int32 & Impure =
     val runner = GradleRunner.create()
     runner.forwardOutput()
     runner.withPluginClasspath()
-    runner.withArguments(":compileFlix", "-S")
+    runner.withArguments(":compileFlix")
     runner.withProjectDir(getProjectDir())
     val result = runner.build()
 
@@ -152,5 +152,46 @@ def main(_args: Array[String]): Int32 & Impure =
       assertNotNull(it.getEntry("Main.flix"))
       assertNotNull(it.getEntry("README.md"))
     }
+  }
+
+  @Test
+  fun `can use toolchain`() {
+    // Setup the test build
+    getSettingsFile().writeText("")
+    getBuildFile()
+        .writeText(
+            """
+plugins {
+    `java`
+    id('jp.skypencil.flix')
+}
+configure<FlixExtension> {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of("17"))
+    }
+}
+""")
+    getProjectDir().resolve("src/main/flix").mkdirs()
+    getProjectDir()
+        .resolve("src/main/flix/Main.flix")
+        .writeText(
+            """
+// The main entry point.
+def main(_args: Array[String]): Int32 & Impure =
+  Console.printLine("Hello World!");
+  0 // exit code
+""")
+
+    // Run the build
+    val runner = GradleRunner.create()
+    runner.forwardOutput()
+    runner.withPluginClasspath()
+    runner.withArguments(":compileFlix", "-S")
+    runner.withProjectDir(getProjectDir())
+    val result = runner.build()
+
+    // Verify the result
+    assertEquals(TaskOutcome.SUCCESS, result.task(":compileFlix")?.outcome)
+    assertTrue(getProjectDir().resolve("build/classes/flix/main/Main.class").isFile)
   }
 }
