@@ -3,6 +3,7 @@ package jp.skypencil.flix
 
 import de.undercouch.gradle.tasks.download.Download
 import java.util.*
+import javax.inject.Inject
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.DuplicatesStrategy
@@ -11,8 +12,11 @@ import org.gradle.api.plugins.*
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.jvm.tasks.Jar
+import org.gradle.jvm.toolchain.JavaToolchainService
 
-class FlixPlugin : Plugin<Project> {
+abstract class FlixPlugin : Plugin<Project> {
+  @Inject abstract fun getJavaToolchainService(): JavaToolchainService
+
   fun createFpkgTask(project: Project, sources: FileCollection): TaskProvider<Zip> {
     return project.tasks.register("fpkg", Zip::class.java) { zip ->
       zip.from(sources)
@@ -93,13 +97,14 @@ class FlixPlugin : Plugin<Project> {
                   .directoryProperty()
                   .fileValue(project.file("${project.buildDir}/classes/flix/test"))
         }
+    val compiler = extension.jvmToolchain.flatMap { getJavaToolchainService().compilerFor(it) }
     val compileFlix =
         project.tasks.register(mainSourceSet.getCompileTaskName(), FlixCompile::class.java) { task
           ->
           task.dependsOn(downloadFlixCompiler)
           task.source = mainSourceSet.source
           task.destinationDirectory.set(mainSourceSet.output)
-          task.jvmToolchain.set(extension.jvmToolchain)
+          task.javaCompiler.value(compiler)
           flixCompiler.resolve()
           task.classpath = project.files(dest)
         }
@@ -109,7 +114,7 @@ class FlixPlugin : Plugin<Project> {
           task.dependsOn(downloadFlixCompiler)
           task.source = mainSourceSet.source + testSourceSet.source
           task.destinationDirectory.set(testSourceSet.output)
-          task.jvmToolchain.set(extension.jvmToolchain)
+          task.javaCompiler.value(compiler)
           flixCompiler.resolve()
           task.classpath = project.files(dest)
         }

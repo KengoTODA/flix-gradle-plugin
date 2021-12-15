@@ -1,7 +1,6 @@
 /* (C) Kengo TODA 2021 */
 package jp.skypencil.flix
 
-import java.util.*
 import java.util.zip.ZipFile
 import kotlin.test.Test
 import kotlin.test.assertEquals
