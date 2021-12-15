@@ -18,7 +18,7 @@ jobs:
           distribution: temurin
           cache: gradle
       - run: ./gradlew spotlessCheck build --no-daemon
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v2.2.4
         if: always()
         with:
           name: reports (${{ matrix.os }})
