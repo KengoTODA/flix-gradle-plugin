@@ -162,11 +162,11 @@ def main(_args: Array[String]): Int32 & Impure =
         .writeText(
             """
 plugins {
-    `java`
+    id('java') 
     id('jp.skypencil.flix')
 }
-configure<FlixExtension> {
-    jvmToolchain {
+java {
+    toolchain {
         languageVersion.set(JavaLanguageVersion.of("17"))
     }
 }
