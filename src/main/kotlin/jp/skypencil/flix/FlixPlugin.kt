@@ -79,6 +79,7 @@ class FlixPlugin : Plugin<Project> {
           task.dependsOn(downloadFlixCompiler)
           task.source = mainSourceSet.source
           task.destinationDirectory.set(mainSourceSet.output)
+          task.jvmToolchain.set(extension.jvmToolchain)
           flixCompiler.resolve()
           task.classpath = project.files(dest)
         }
@@ -88,6 +89,7 @@ class FlixPlugin : Plugin<Project> {
           task.dependsOn(downloadFlixCompiler)
           task.source = mainSourceSet.source + testSourceSet.source
           task.destinationDirectory.set(testSourceSet.output)
+          task.jvmToolchain.set(extension.jvmToolchain)
           flixCompiler.resolve()
           task.classpath = project.files(dest)
         }
