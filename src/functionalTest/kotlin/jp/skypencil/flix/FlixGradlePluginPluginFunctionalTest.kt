@@ -72,4 +72,45 @@ def main(_args: Array[String]): Int32 & Impure =
     assertEquals(TaskOutcome.SUCCESS, result.task(":compileFlix")?.outcome)
     assertTrue(getProjectDir().resolve("build/classes/flix/main/Main.class").isFile)
   }
+
+  @Test
+  fun `can compile test files`() {
+    // Setup the test build
+    getSettingsFile().writeText("")
+    getBuildFile().writeText("""
+plugins {
+    id('jp.skypencil.flix')
+}
+""")
+    getProjectDir().resolve("src/main/flix").mkdirs()
+    getProjectDir()
+        .resolve("src/main/flix/Main.flix")
+        .writeText(
+            """
+// The main entry point.
+def main(_args: Array[String]): Int32 & Impure =
+  Console.printLine("Hello World!");
+  0 // exit code
+""")
+    getProjectDir().resolve("src/test/flix").mkdirs()
+    getProjectDir()
+        .resolve("src/test/flix/TestMain.flix")
+        .writeText("""
+@test
+def test01(): Bool = 1 + 1 == 2
+""")
+
+    // Run the build
+    val runner = GradleRunner.create()
+    runner.forwardOutput()
+    runner.withPluginClasspath()
+    runner.withArguments(":compileTestFlix")
+    runner.withProjectDir(getProjectDir())
+    val result = runner.build()
+
+    // Verify the result
+    assertEquals(TaskOutcome.SUCCESS, result.task(":compileTestFlix")?.outcome)
+    assertTrue(getProjectDir().resolve("build/classes/flix/test/Main.class").isFile)
+    assertTrue(getProjectDir().resolve("build/classes/flix/test/Def\$test01.class").isFile)
+  }
 }

@@ -2,13 +2,10 @@
 package jp.skypencil.flix
 
 import de.undercouch.gradle.tasks.download.Download
-import java.util.Properties
+import java.util.*
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.ApplicationPlugin
-import org.gradle.api.plugins.JavaApplication
-import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.plugins.*
 import org.gradle.jvm.tasks.Jar
 
 class FlixPlugin : Plugin<Project> {
@@ -58,6 +55,24 @@ class FlixPlugin : Plugin<Project> {
                   .directoryProperty()
                   .fileValue(project.file("${project.buildDir}/classes/flix/main"))
         }
+    val testSourceSet =
+        extension.sourceSets.create("test").apply {
+          source =
+              project
+                  .objects
+                  .sourceDirectorySet("flix", "Flix test source")
+                  .setSrcDirs(listOf("src/test/flix"))
+          resources =
+              project
+                  .objects
+                  .sourceDirectorySet("resources", "Flix test resource")
+                  .setSrcDirs(listOf("src/test/resources"))
+          output =
+              project
+                  .objects
+                  .directoryProperty()
+                  .fileValue(project.file("${project.buildDir}/classes/flix/test"))
+        }
     val compileFlix =
         project.tasks.register(mainSourceSet.getCompileTaskName(), FlixCompile::class.java) { task
           ->
@@ -67,11 +82,20 @@ class FlixPlugin : Plugin<Project> {
           flixCompiler.resolve()
           task.classpath = project.files(dest)
         }
+    val compileTestFlix =
+        project.tasks.register(testSourceSet.getCompileTaskName(), FlixCompile::class.java) { task
+          ->
+          task.dependsOn(downloadFlixCompiler)
+          task.source = mainSourceSet.source + testSourceSet.source
+          task.destinationDirectory.set(testSourceSet.output)
+          flixCompiler.resolve()
+          task.classpath = project.files(dest)
+        }
+    project.tasks.named(JavaBasePlugin.CHECK_TASK_NAME) { it.dependsOn(compileTestFlix) }
     project.plugins.withId("java") {
       project.tasks.named(JavaPlugin.CLASSES_TASK_NAME) { it.dependsOn(compileFlix) }
       project.tasks.named(JavaPlugin.JAR_TASK_NAME, Jar::class.java) { jar ->
         jar.from(mainSourceSet.output)
-        // TODO do we really need this even when `application` plugin exists?
         jar.manifest.attributes["Main-Class"] = DEFAULT_MAIN_CLASS
       }
     }
