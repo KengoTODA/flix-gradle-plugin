@@ -13,11 +13,12 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.jvm.tasks.Jar
 import org.gradle.jvm.toolchain.JavaToolchainService
+import org.gradle.jvm.toolchain.JavaToolchainSpec
 
 abstract class FlixPlugin : Plugin<Project> {
   @Inject abstract fun getJavaToolchainService(): JavaToolchainService
 
-  fun createFpkgTask(project: Project, sources: FileCollection): TaskProvider<Zip> {
+  private fun createFpkgTask(project: Project, sources: FileCollection): TaskProvider<Zip> {
     return project.tasks.register("fpkg", Zip::class.java) { zip ->
       zip.from(sources)
       zip.from(project.file("HISTORY.md"))
@@ -40,7 +41,6 @@ abstract class FlixPlugin : Plugin<Project> {
     val extension = project.extensions.create("flix", FlixExtension::class.java)
     extension.apply {
       compilerVersion.convention(loadCompilerVersion())
-      jvmToolchain.convention(project.provider { javaExtension.toolchain })
       sourceSets = project.objects.domainObjectContainer(FlixSourceSet::class.java)
     }
 
@@ -97,7 +97,11 @@ abstract class FlixPlugin : Plugin<Project> {
                   .directoryProperty()
                   .fileValue(project.file("${project.buildDir}/classes/flix/test"))
         }
-    val compiler = extension.jvmToolchain.flatMap { getJavaToolchainService().compilerFor(it) }
+    val compiler =
+        getJavaToolchainService()
+            .compilerFor(
+                if (isConfigured(extension.jvmToolchain)) extension.jvmToolchain
+                else javaExtension.toolchain)
     val compileFlix =
         project.tasks.register(mainSourceSet.getCompileTaskName(), FlixCompile::class.java) { task
           ->
@@ -138,6 +142,11 @@ abstract class FlixPlugin : Plugin<Project> {
     const val DEFAULT_MAIN_CLASS = "Main"
     private const val PROPERTIES_FILE_NAME = "flix-gradle-plugin.properties"
 
+    fun isConfigured(spec: JavaToolchainSpec): Boolean {
+      return spec.implementation.isPresent ||
+          spec.languageVersion.isPresent ||
+          spec.vendor.isPresent
+    }
     fun loadCompilerVersion(): String {
       val url = FlixPlugin::class.java.classLoader.getResource(PROPERTIES_FILE_NAME)!!
       url.openStream().use {
