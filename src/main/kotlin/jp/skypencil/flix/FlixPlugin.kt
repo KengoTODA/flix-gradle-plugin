@@ -96,14 +96,14 @@ abstract class FlixPlugin : Plugin<Project> {
                   .directoryProperty()
                   .fileValue(project.file("${project.buildDir}/classes/flix/test"))
         }
-    val compiler = getJavaToolchainService().compilerFor(javaExtension.toolchain)
+    val launcher = getJavaToolchainService().launcherFor(javaExtension.toolchain)
     val compileFlix =
         project.tasks.register(mainSourceSet.getCompileTaskName(), FlixCompile::class.java) { task
           ->
           task.dependsOn(downloadFlixCompiler)
           task.source = mainSourceSet.source
           task.destinationDirectory.set(mainSourceSet.output)
-          task.javaCompiler.set(compiler)
+          task.launcher.set(launcher)
           flixCompiler.resolve()
           task.classpath = project.files(dest)
         }
@@ -113,7 +113,7 @@ abstract class FlixPlugin : Plugin<Project> {
           task.dependsOn(downloadFlixCompiler)
           task.source = mainSourceSet.source + testSourceSet.source
           task.destinationDirectory.set(testSourceSet.output)
-          task.javaCompiler.set(compiler)
+          task.launcher.set(launcher)
           flixCompiler.resolve()
           task.classpath = project.files(dest)
         }

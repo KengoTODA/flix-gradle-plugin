@@ -19,6 +19,11 @@ plugins {
   `application`
   id("jp.skypencil.flix") version "1.0.0"
 }
+configure<JavaPluginExtension> {
+  toolchain {
+    languageVersion.set(JavaLanguageVersion.of(11))
+  }
+}
 configure<FlixExtension> {
   compilerVersion.set("v0.25.0")
   sourceSets {

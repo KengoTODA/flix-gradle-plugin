@@ -15,7 +15,7 @@ import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.compile.AbstractCompile
-import org.gradle.jvm.toolchain.JavaCompiler
+import org.gradle.jvm.toolchain.JavaLauncher
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
@@ -24,17 +24,17 @@ import org.gradle.workers.WorkerExecutor
 abstract class FlixCompile : AbstractCompile() {
   @get:Nested
   @get:Optional
-  val javaCompiler: Property<JavaCompiler> = project.objects.property(JavaCompiler::class.java)
+  val launcher: Property<JavaLauncher> = project.objects.property(JavaLauncher::class.java)
 
   @Inject abstract fun getWorkerExecutor(): WorkerExecutor
 
   @TaskAction
   fun run() {
     val workQueue =
-        if (javaCompiler.isPresent) {
+        if (launcher.isPresent) {
           getWorkerExecutor().processIsolation { workerSpec ->
             workerSpec.classpath.from(classpath)
-            workerSpec.forkOptions.setExecutable(javaCompiler.get().executablePath)
+            workerSpec.forkOptions.setExecutable(launcher.get().executablePath)
           }
         } else {
           getWorkerExecutor().classLoaderIsolation { workerSpec ->
