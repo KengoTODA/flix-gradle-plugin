@@ -2,8 +2,10 @@
 package jp.skypencil.flix
 
 import java.util.*
+import java.util.zip.ZipFile
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
@@ -64,7 +66,7 @@ def main(_args: Array[String]): Int32 & Impure =
     val runner = GradleRunner.create()
     runner.forwardOutput()
     runner.withPluginClasspath()
-    runner.withArguments(":compileFlix")
+    runner.withArguments(":compileFlix", "-S")
     runner.withProjectDir(getProjectDir())
     val result = runner.build()
 
@@ -112,5 +114,44 @@ def test01(): Bool = 1 + 1 == 2
     assertEquals(TaskOutcome.SUCCESS, result.task(":compileTestFlix")?.outcome)
     assertTrue(getProjectDir().resolve("build/classes/flix/test/Main.class").isFile)
     assertTrue(getProjectDir().resolve("build/classes/flix/test/Def\$test01.class").isFile)
+  }
+
+  @Test
+  fun `can assemble fpkg file`() {
+    // Setup the test build
+    getSettingsFile().writeText("""
+rootProject.name = "flix-project"
+""")
+    getBuildFile().writeText("""
+plugins {
+    id('jp.skypencil.flix')
+}
+""")
+    getProjectDir().resolve("src/main/flix").mkdirs()
+    getProjectDir()
+        .resolve("src/main/flix/Main.flix")
+        .writeText(
+            """
+// The main entry point.
+def main(_args: Array[String]): Int32 & Impure =
+  Console.printLine("Hello World!");
+  0 // exit code
+""")
+    getProjectDir().resolve("README.md").writeText("# README")
+
+    // Run the build
+    val runner = GradleRunner.create()
+    runner.forwardOutput()
+    runner.withPluginClasspath()
+    runner.withArguments(":assemble")
+    runner.withProjectDir(getProjectDir())
+    val result = runner.build()
+
+    // Verify the result
+    assertEquals(TaskOutcome.SUCCESS, result.task(":fpkg")?.outcome)
+    ZipFile(getProjectDir().resolve("build/fpkg/flix-project.fpkg")).use {
+      assertNotNull(it.getEntry("Main.flix"))
+      assertNotNull(it.getEntry("README.md"))
+    }
   }
 }

@@ -5,10 +5,30 @@ import de.undercouch.gradle.tasks.download.Download
 import java.util.*
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.*
+import org.gradle.api.tasks.TaskProvider
+import org.gradle.api.tasks.bundling.Zip
 import org.gradle.jvm.tasks.Jar
 
 class FlixPlugin : Plugin<Project> {
+  fun createFpkgTask(project: Project, sources: FileCollection): TaskProvider<Zip> {
+    return project.tasks.register("fpkg", Zip::class.java) { zip ->
+      zip.from(sources)
+      zip.from(project.file("HISTORY.md"))
+      zip.from(project.file("LICENSE.md"))
+      zip.from(project.file("README.md"))
+
+      zip.duplicatesStrategy = DuplicatesStrategy.FAIL
+      zip.archiveExtension.set("fpkg")
+      zip.destinationDirectory.set(project.buildDir.resolve("fpkg"))
+
+      // for https://reproducible-builds.org/docs/jvm/
+      zip.isReproducibleFileOrder = true
+      zip.isPreserveFileTimestamps = false
+    }
+  }
   override fun apply(project: Project) {
     project.plugins.apply("java-base")
     val javaExtension = project.extensions.findByType(JavaPluginExtension::class.java)!!
@@ -93,11 +113,13 @@ class FlixPlugin : Plugin<Project> {
           flixCompiler.resolve()
           task.classpath = project.files(dest)
         }
+    val fpkg = createFpkgTask(project, mainSourceSet.source)
+    project.tasks.named(BasePlugin.ASSEMBLE_TASK_NAME) { it.dependsOn(fpkg) }
     project.tasks.named(JavaBasePlugin.CHECK_TASK_NAME) { it.dependsOn(compileTestFlix) }
     project.plugins.withId("java") {
       project.tasks.named(JavaPlugin.CLASSES_TASK_NAME) { it.dependsOn(compileFlix) }
       project.tasks.named(JavaPlugin.JAR_TASK_NAME, Jar::class.java) { jar ->
-        jar.from(mainSourceSet.output)
+        jar.from(project.objects.fileCollection().builtBy(compileFlix))
         jar.manifest.attributes["Main-Class"] = DEFAULT_MAIN_CLASS
       }
     }

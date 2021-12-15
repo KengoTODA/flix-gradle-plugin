@@ -37,16 +37,15 @@ abstract class FlixCompile : AbstractCompile() {
             }
             .map { it.executablePath }
     val workQueue =
-        when (launcher.isPresent) {
-          true ->
-              getWorkerExecutor().processIsolation { workerSpec ->
-                workerSpec.classpath.from(classpath)
-                workerSpec.forkOptions.setExecutable(launcher.get())
-              }
-          else ->
-              getWorkerExecutor().classLoaderIsolation { workerSpec ->
-                workerSpec.classpath.from(classpath)
-              }
+        if (launcher.isPresent) {
+          getWorkerExecutor().processIsolation { workerSpec ->
+            workerSpec.classpath.from(classpath)
+            workerSpec.forkOptions.setExecutable(launcher.get())
+          }
+        } else {
+          getWorkerExecutor().classLoaderIsolation { workerSpec ->
+            workerSpec.classpath.from(classpath)
+          }
         }
     workQueue.submit(CompileAction::class.java) {
       it.getDestinationDirectory().set(destinationDirectory)
