@@ -7,23 +7,39 @@ import ca.uwaterloo.flix.util.Options
 import ca.uwaterloo.flix.util.vt.TerminalContext
 import javax.inject.Inject
 import org.gradle.api.GradleException
-import org.gradle.api.file.*
+import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.compile.AbstractCompile
+import org.gradle.jvm.toolchain.JavaLauncher
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
 
 @CacheableTask
 abstract class FlixCompile : AbstractCompile() {
+  @get:Nested
+  @get:Optional
+  val launcher: Property<JavaLauncher> = project.objects.property(JavaLauncher::class.java)
+
   @Inject abstract fun getWorkerExecutor(): WorkerExecutor
 
   @TaskAction
   fun run() {
     val workQueue =
-        getWorkerExecutor().classLoaderIsolation { workerSpec ->
-          workerSpec.classpath.from(classpath)
+        if (launcher.isPresent) {
+          getWorkerExecutor().processIsolation { workerSpec ->
+            workerSpec.classpath.from(classpath)
+            workerSpec.forkOptions.setExecutable(launcher.get().executablePath)
+          }
+        } else {
+          getWorkerExecutor().classLoaderIsolation { workerSpec ->
+            workerSpec.classpath.from(classpath)
+          }
         }
     workQueue.submit(CompileAction::class.java) {
       it.getDestinationDirectory().set(destinationDirectory)

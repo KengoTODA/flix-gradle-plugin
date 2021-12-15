@@ -2,16 +2,37 @@
 package jp.skypencil.flix
 
 import de.undercouch.gradle.tasks.download.Download
-import java.util.Properties
+import java.util.*
+import javax.inject.Inject
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.ApplicationPlugin
-import org.gradle.api.plugins.JavaApplication
-import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.file.FileCollection
+import org.gradle.api.plugins.*
+import org.gradle.api.tasks.TaskProvider
+import org.gradle.api.tasks.bundling.Zip
 import org.gradle.jvm.tasks.Jar
+import org.gradle.jvm.toolchain.JavaToolchainService
 
-class FlixPlugin : Plugin<Project> {
+abstract class FlixPlugin : Plugin<Project> {
+  @Inject abstract fun getJavaToolchainService(): JavaToolchainService
+
+  private fun createFpkgTask(project: Project, sources: FileCollection): TaskProvider<Zip> {
+    return project.tasks.register("fpkg", Zip::class.java) { zip ->
+      zip.from(sources)
+      zip.from(project.file("HISTORY.md"))
+      zip.from(project.file("LICENSE.md"))
+      zip.from(project.file("README.md"))
+
+      zip.duplicatesStrategy = DuplicatesStrategy.FAIL
+      zip.archiveExtension.set("fpkg")
+      zip.destinationDirectory.set(project.buildDir.resolve("fpkg"))
+
+      // for https://reproducible-builds.org/docs/jvm/
+      zip.isReproducibleFileOrder = true
+      zip.isPreserveFileTimestamps = false
+    }
+  }
   override fun apply(project: Project) {
     project.plugins.apply("java-base")
     val javaExtension = project.extensions.findByType(JavaPluginExtension::class.java)!!
@@ -19,7 +40,6 @@ class FlixPlugin : Plugin<Project> {
     val extension = project.extensions.create("flix", FlixExtension::class.java)
     extension.apply {
       compilerVersion.convention(loadCompilerVersion())
-      jvmToolchain.convention(project.provider { javaExtension.toolchain })
       sourceSets = project.objects.domainObjectContainer(FlixSourceSet::class.java)
     }
 
@@ -58,20 +78,52 @@ class FlixPlugin : Plugin<Project> {
                   .directoryProperty()
                   .fileValue(project.file("${project.buildDir}/classes/flix/main"))
         }
+    val testSourceSet =
+        extension.sourceSets.create("test").apply {
+          source =
+              project
+                  .objects
+                  .sourceDirectorySet("flix", "Flix test source")
+                  .setSrcDirs(listOf("src/test/flix"))
+          resources =
+              project
+                  .objects
+                  .sourceDirectorySet("resources", "Flix test resource")
+                  .setSrcDirs(listOf("src/test/resources"))
+          output =
+              project
+                  .objects
+                  .directoryProperty()
+                  .fileValue(project.file("${project.buildDir}/classes/flix/test"))
+        }
+    val launcher = getJavaToolchainService().launcherFor(javaExtension.toolchain)
     val compileFlix =
         project.tasks.register(mainSourceSet.getCompileTaskName(), FlixCompile::class.java) { task
           ->
           task.dependsOn(downloadFlixCompiler)
           task.source = mainSourceSet.source
           task.destinationDirectory.set(mainSourceSet.output)
+          task.launcher.set(launcher)
           flixCompiler.resolve()
           task.classpath = project.files(dest)
         }
+    val compileTestFlix =
+        project.tasks.register(testSourceSet.getCompileTaskName(), FlixCompile::class.java) { task
+          ->
+          task.dependsOn(downloadFlixCompiler)
+          task.source = mainSourceSet.source + testSourceSet.source
+          task.destinationDirectory.set(testSourceSet.output)
+          task.launcher.set(launcher)
+          flixCompiler.resolve()
+          task.classpath = project.files(dest)
+        }
+    val fpkg = createFpkgTask(project, mainSourceSet.source)
+    project.tasks.named(BasePlugin.ASSEMBLE_TASK_NAME) { it.dependsOn(fpkg) }
+    project.tasks.named(JavaBasePlugin.CHECK_TASK_NAME) { it.dependsOn(compileTestFlix) }
     project.plugins.withId("java") {
       project.tasks.named(JavaPlugin.CLASSES_TASK_NAME) { it.dependsOn(compileFlix) }
       project.tasks.named(JavaPlugin.JAR_TASK_NAME, Jar::class.java) { jar ->
-        jar.from(mainSourceSet.output)
-        // TODO do we really need this even when `application` plugin exists?
+        jar.from(project.objects.fileCollection().builtBy(compileFlix))
         jar.manifest.attributes["Main-Class"] = DEFAULT_MAIN_CLASS
       }
     }

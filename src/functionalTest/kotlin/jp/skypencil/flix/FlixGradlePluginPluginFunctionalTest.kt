@@ -1,9 +1,10 @@
 /* (C) Kengo TODA 2021 */
 package jp.skypencil.flix
 
-import java.util.*
+import java.util.zip.ZipFile
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
@@ -65,6 +66,127 @@ def main(_args: Array[String]): Int32 & Impure =
     runner.forwardOutput()
     runner.withPluginClasspath()
     runner.withArguments(":compileFlix")
+    runner.withProjectDir(getProjectDir())
+    val result = runner.build()
+
+    // Verify the result
+    assertEquals(TaskOutcome.SUCCESS, result.task(":compileFlix")?.outcome)
+    assertTrue(getProjectDir().resolve("build/classes/flix/main/Main.class").isFile)
+  }
+
+  @Test
+  fun `can compile test files`() {
+    // Setup the test build
+    getSettingsFile().writeText("")
+    getBuildFile().writeText("""
+plugins {
+    id('jp.skypencil.flix')
+}
+""")
+    getProjectDir().resolve("src/main/flix").mkdirs()
+    getProjectDir()
+        .resolve("src/main/flix/Main.flix")
+        .writeText(
+            """
+// The main entry point.
+def main(_args: Array[String]): Int32 & Impure =
+  Console.printLine("Hello World!");
+  0 // exit code
+""")
+    getProjectDir().resolve("src/test/flix").mkdirs()
+    getProjectDir()
+        .resolve("src/test/flix/TestMain.flix")
+        .writeText("""
+@test
+def test01(): Bool = 1 + 1 == 2
+""")
+
+    // Run the build
+    val runner = GradleRunner.create()
+    runner.forwardOutput()
+    runner.withPluginClasspath()
+    runner.withArguments(":compileTestFlix")
+    runner.withProjectDir(getProjectDir())
+    val result = runner.build()
+
+    // Verify the result
+    assertEquals(TaskOutcome.SUCCESS, result.task(":compileTestFlix")?.outcome)
+    assertTrue(getProjectDir().resolve("build/classes/flix/test/Main.class").isFile)
+    assertTrue(getProjectDir().resolve("build/classes/flix/test/Def\$test01.class").isFile)
+  }
+
+  @Test
+  fun `can assemble fpkg file`() {
+    // Setup the test build
+    getSettingsFile().writeText("""
+rootProject.name = "flix-project"
+""")
+    getBuildFile().writeText("""
+plugins {
+    id('jp.skypencil.flix')
+}
+""")
+    getProjectDir().resolve("src/main/flix").mkdirs()
+    getProjectDir()
+        .resolve("src/main/flix/Main.flix")
+        .writeText(
+            """
+// The main entry point.
+def main(_args: Array[String]): Int32 & Impure =
+  Console.printLine("Hello World!");
+  0 // exit code
+""")
+    getProjectDir().resolve("README.md").writeText("# README")
+
+    // Run the build
+    val runner = GradleRunner.create()
+    runner.forwardOutput()
+    runner.withPluginClasspath()
+    runner.withArguments(":assemble")
+    runner.withProjectDir(getProjectDir())
+    val result = runner.build()
+
+    // Verify the result
+    assertEquals(TaskOutcome.SUCCESS, result.task(":fpkg")?.outcome)
+    ZipFile(getProjectDir().resolve("build/fpkg/flix-project.fpkg")).use {
+      assertNotNull(it.getEntry("Main.flix"))
+      assertNotNull(it.getEntry("README.md"))
+    }
+  }
+
+  @Test
+  fun `can use toolchain`() {
+    // Setup the test build
+    getSettingsFile().writeText("")
+    getBuildFile()
+        .writeText(
+            """
+plugins {
+    id('java') 
+    id('jp.skypencil.flix')
+}
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of("17"))
+    }
+}
+""")
+    getProjectDir().resolve("src/main/flix").mkdirs()
+    getProjectDir()
+        .resolve("src/main/flix/Main.flix")
+        .writeText(
+            """
+// The main entry point.
+def main(_args: Array[String]): Int32 & Impure =
+  Console.printLine("Hello World!");
+  0 // exit code
+""")
+
+    // Run the build
+    val runner = GradleRunner.create()
+    runner.forwardOutput()
+    runner.withPluginClasspath()
+    runner.withArguments(":compileFlix", "-S")
     runner.withProjectDir(getProjectDir())
     val result = runner.build()
 
