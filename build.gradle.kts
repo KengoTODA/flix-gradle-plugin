@@ -30,19 +30,13 @@ val processVersionFile =
 tasks.named<Task>("processResources") { dependsOn(processVersionFile) }
 
 dependencies {
-  compileOnly(downloadFlixCompiler.map { it.outputs.files })
   implementation("de.undercouch:gradle-download-task:4.1.2")
-
-  // Align versions of all Kotlin components
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
-
-  // Use the Kotlin JDK 8 standard library.
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-  // Use the Kotlin test library.
-  testImplementation("org.jetbrains.kotlin:kotlin-test")
+  compileOnly(downloadFlixCompiler.map { it.outputs.files })
 
-  // Use the Kotlin JUnit integration.
+  testImplementation("org.jetbrains.kotlin:kotlin-test")
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
   testImplementation(downloadFlixCompiler.map { it.outputs.files })
 }

@@ -75,7 +75,7 @@ def main(_args: Array[String]): Int32 & Impure =
   }
 
   @Test
-  fun `can compile test files`() {
+  fun `can test files`() {
     // Setup the test build
     getSettingsFile().writeText("")
     getBuildFile().writeText("""
@@ -105,14 +105,13 @@ def test01(): Bool = 1 + 1 == 2
     val runner = GradleRunner.create()
     runner.forwardOutput()
     runner.withPluginClasspath()
-    runner.withArguments(":compileTestFlix")
+    runner.withArguments(":check")
     runner.withProjectDir(getProjectDir())
     val result = runner.build()
 
     // Verify the result
-    assertEquals(TaskOutcome.SUCCESS, result.task(":compileTestFlix")?.outcome)
-    assertTrue(getProjectDir().resolve("build/classes/flix/test/Main.class").isFile)
-    assertTrue(getProjectDir().resolve("build/classes/flix/test/Def\$test01.class").isFile)
+    assertEquals(TaskOutcome.SUCCESS, result.task(":testFlix")?.outcome)
+    assertTrue(getProjectDir().resolve("build/reports/flix/main.txt").isFile)
   }
 
   @Test

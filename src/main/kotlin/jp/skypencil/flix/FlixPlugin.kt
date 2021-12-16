@@ -9,6 +9,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.*
+import org.gradle.api.reporting.ReportingExtension
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.jvm.tasks.Jar
@@ -107,19 +108,24 @@ abstract class FlixPlugin : Plugin<Project> {
           flixCompiler.resolve()
           task.classpath = project.files(dest)
         }
-    val compileTestFlix =
-        project.tasks.register(testSourceSet.getCompileTaskName(), FlixCompile::class.java) { task
-          ->
+    val testFlix =
+        project.tasks.register("testFlix", FlixTest::class.java) { task ->
           task.dependsOn(downloadFlixCompiler)
           task.source = mainSourceSet.source + testSourceSet.source
           task.destinationDirectory.set(testSourceSet.output)
           task.launcher.set(launcher)
           flixCompiler.resolve()
           task.classpath = project.files(dest)
+          task.report.set(
+              project
+                  .buildDir
+                  .resolve(ReportingExtension.DEFAULT_REPORTS_DIR_NAME)
+                  .resolve("flix")
+                  .resolve("main.txt"))
         }
     val fpkg = createFpkgTask(project, mainSourceSet.source)
     project.tasks.named(BasePlugin.ASSEMBLE_TASK_NAME) { it.dependsOn(fpkg) }
-    project.tasks.named(JavaBasePlugin.CHECK_TASK_NAME) { it.dependsOn(compileTestFlix) }
+    project.tasks.named(JavaBasePlugin.CHECK_TASK_NAME) { it.dependsOn(testFlix) }
     project.plugins.withId("java") {
       project.tasks.named(JavaPlugin.CLASSES_TASK_NAME) { it.dependsOn(compileFlix) }
       project.tasks.named(JavaPlugin.JAR_TASK_NAME, Jar::class.java) { jar ->
