@@ -107,9 +107,8 @@ abstract class FlixPlugin : Plugin<Project> {
           flixCompiler.resolve()
           task.classpath = project.files(dest)
         }
-    val compileTestFlix =
-        project.tasks.register(testSourceSet.getCompileTaskName(), FlixCompile::class.java) { task
-          ->
+    val testFlix =
+        project.tasks.register("testFlix", FlixTest::class.java) { task ->
           task.dependsOn(downloadFlixCompiler)
           task.source = mainSourceSet.source + testSourceSet.source
           task.destinationDirectory.set(testSourceSet.output)
@@ -119,7 +118,7 @@ abstract class FlixPlugin : Plugin<Project> {
         }
     val fpkg = createFpkgTask(project, mainSourceSet.source)
     project.tasks.named(BasePlugin.ASSEMBLE_TASK_NAME) { it.dependsOn(fpkg) }
-    project.tasks.named(JavaBasePlugin.CHECK_TASK_NAME) { it.dependsOn(compileTestFlix) }
+    project.tasks.named(JavaBasePlugin.CHECK_TASK_NAME) { it.dependsOn(testFlix) }
     project.plugins.withId("java") {
       project.tasks.named(JavaPlugin.CLASSES_TASK_NAME) { it.dependsOn(compileFlix) }
       project.tasks.named(JavaPlugin.JAR_TASK_NAME, Jar::class.java) { jar ->
