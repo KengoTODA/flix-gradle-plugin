@@ -68,11 +68,6 @@ abstract class FlixPlugin : Plugin<Project> {
                   .objects
                   .sourceDirectorySet("flix", "Flix main source")
                   .setSrcDirs(listOf("src/main/flix"))
-          resources =
-              project
-                  .objects
-                  .sourceDirectorySet("resources", "Flix main resource")
-                  .setSrcDirs(listOf("src/main/resources"))
           output =
               project
                   .objects
@@ -86,11 +81,6 @@ abstract class FlixPlugin : Plugin<Project> {
                   .objects
                   .sourceDirectorySet("flix", "Flix test source")
                   .setSrcDirs(listOf("src/test/flix"))
-          resources =
-              project
-                  .objects
-                  .sourceDirectorySet("resources", "Flix test resource")
-                  .setSrcDirs(listOf("src/test/resources"))
           output =
               project
                   .objects

@@ -7,6 +7,7 @@ import ca.uwaterloo.flix.language.ast.Symbol
 import ca.uwaterloo.flix.util.Options
 import ca.uwaterloo.flix.util.vt.TerminalContext
 import javax.inject.Inject
+import jp.skypencil.flix.internal.WorkQueueFactory
 import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
@@ -17,7 +18,6 @@ import org.gradle.api.tasks.compile.AbstractCompile
 import org.gradle.jvm.toolchain.JavaLauncher
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import org.gradle.workers.WorkerExecutor
 import scala.Function0
 import scala.Tuple2
 
@@ -27,23 +27,13 @@ abstract class FlixTest : AbstractCompile() {
   @get:Optional
   val launcher: Property<JavaLauncher> = project.objects.property(JavaLauncher::class.java)
 
-  @Inject abstract fun getWorkerExecutor(): WorkerExecutor
+  @Inject abstract fun getWorkQueueFactory(): WorkQueueFactory
 
   @get:OutputFile val report: RegularFileProperty = project.objects.fileProperty()
 
   @TaskAction
   fun run() {
-    val workQueue =
-        if (launcher.isPresent) {
-          getWorkerExecutor().processIsolation { workerSpec ->
-            workerSpec.classpath.from(classpath)
-            workerSpec.forkOptions.setExecutable(launcher.get().executablePath)
-          }
-        } else {
-          getWorkerExecutor().classLoaderIsolation { workerSpec ->
-            workerSpec.classpath.from(classpath)
-          }
-        }
+    val workQueue = getWorkQueueFactory().createWorkQueue(launcher, classpath)
     workQueue.submit(TestAction::class.java) {
       it.getDestinationDirectory().set(destinationDirectory)
       it.getSource().from(source)
@@ -123,6 +113,14 @@ abstract class TestAction : WorkAction<TestParameter> {
               writer.write(it.toString())
               writer.newLine()
             }
+          }
+        }
+        if (results.exists { !it.success }) {
+          if (parameters.getTextReport().isPresent) {
+            throw GradleException(
+                "Flix test failed, see the report generated at ${ parameters.getTextReport().get().asFile.absolutePath }")
+          } else {
+            throw GradleException("Flix test failed")
           }
         }
       }

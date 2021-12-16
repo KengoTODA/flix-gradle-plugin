@@ -37,6 +37,12 @@ configure<FlixExtension> {
 }
 ```
 
+### Limitation
+
+* No support for resource files such as `src/main/resources` and `src/test/resources`
+* Not tested with v0.24.0 or older
+* Test reports generated at `build/reports/flix/main.txt` is quite simple
+
 ## Developers' guideline
 ### TODO
 
@@ -44,9 +50,9 @@ configure<FlixExtension> {
 - [x] add `testFlix` task
 - [x] add a task to make a `.fpkg` file
 - [x] support the Gradle Java toolchain
+- [x] use Gradle worker API to introduce the classloader level separation
 - [ ] support dependency management (based on [an investigation](https://gist.github.com/KengoTODA/3598bcd784d2904948fc38e40fef637e))
 - [ ] create a JUnit XML file based on test result
-- [x] use Gradle worker API to introduce the classloader level separation
 
 ## Copyright
 

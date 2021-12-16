@@ -115,6 +115,46 @@ def test01(): Bool = 1 + 1 == 2
   }
 
   @Test
+  fun `can fail build in case of test failure`() {
+    // Setup the test build
+    getSettingsFile().writeText("")
+    getBuildFile().writeText("""
+plugins {
+    id('jp.skypencil.flix')
+}
+""")
+    getProjectDir().resolve("src/main/flix").mkdirs()
+    getProjectDir()
+        .resolve("src/main/flix/Main.flix")
+        .writeText(
+            """
+// The main entry point.
+def main(_args: Array[String]): Int32 & Impure =
+  Console.printLine("Hello World!");
+  0 // exit code
+""")
+    getProjectDir().resolve("src/test/flix").mkdirs()
+    getProjectDir()
+        .resolve("src/test/flix/TestMain.flix")
+        .writeText("""
+@test
+def test01(): Bool = 1 + 1 == 0
+""")
+
+    // Run the build
+    val runner = GradleRunner.create()
+    runner.forwardOutput()
+    runner.withPluginClasspath()
+    runner.withArguments(":check")
+    runner.withProjectDir(getProjectDir())
+    val result = runner.buildAndFail()
+
+    // Verify the result
+    assertEquals(TaskOutcome.FAILED, result.task(":testFlix")?.outcome)
+    assertTrue(getProjectDir().resolve("build/reports/flix/main.txt").isFile)
+  }
+
+  @Test
   fun `can assemble fpkg file`() {
     // Setup the test build
     getSettingsFile().writeText("""

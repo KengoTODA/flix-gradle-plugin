@@ -3,7 +3,13 @@ plugins {
   id("com.diffplug.spotless")
 }
 
-java { toolchain { languageVersion.set(JavaLanguageVersion.of("11")) } }
+java {
+  toolchain {
+    languageVersion.set(JavaLanguageVersion.of("17")) } }
+
+tasks.withType<JavaCompile> {
+  options.release.set(8)
+}
 
 configure<com.diffplug.gradle.spotless.SpotlessExtension> {
   kotlin {
