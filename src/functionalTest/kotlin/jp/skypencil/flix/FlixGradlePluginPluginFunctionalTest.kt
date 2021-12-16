@@ -111,8 +111,7 @@ def test01(): Bool = 1 + 1 == 2
 
     // Verify the result
     assertEquals(TaskOutcome.SUCCESS, result.task(":testFlix")?.outcome)
-    assertTrue(getProjectDir().resolve("build/classes/flix/test/Main.class").isFile)
-    assertTrue(getProjectDir().resolve("build/classes/flix/test/Def\$test01.class").isFile)
+    assertTrue(getProjectDir().resolve("build/reports/flix/main.txt").isFile)
   }
 
   @Test

@@ -10,11 +10,9 @@ import javax.inject.Inject
 import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Nested
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import org.gradle.api.tasks.compile.AbstractCompile
 import org.gradle.jvm.toolchain.JavaLauncher
 import org.gradle.workers.WorkAction
@@ -30,6 +28,8 @@ abstract class FlixTest : AbstractCompile() {
   val launcher: Property<JavaLauncher> = project.objects.property(JavaLauncher::class.java)
 
   @Inject abstract fun getWorkerExecutor(): WorkerExecutor
+
+  @get:OutputFile val report: RegularFileProperty = project.objects.fileProperty()
 
   @TaskAction
   fun run() {
@@ -48,11 +48,12 @@ abstract class FlixTest : AbstractCompile() {
       it.getDestinationDirectory().set(destinationDirectory)
       it.getSource().from(source)
       it.getClasspath().from(classpath)
+      it.getTextReport().set(report)
     }
   }
 }
 
-private class TestResult(success: Boolean, sym: Symbol.DefnSym, message: String?)
+private data class TestResult(val success: Boolean, val sym: Symbol.DefnSym, val message: String?)
 
 abstract class TestAction : WorkAction<TestParameter> {
   override fun execute() {
@@ -116,7 +117,14 @@ abstract class TestAction : WorkAction<TestParameter> {
               }
             } as
                 scala.collection.immutable.List<TestResult>
-        results.foreach { println(it) }
+        if (parameters.getTextReport().isPresent) {
+          parameters.getTextReport().get().asFile.bufferedWriter().use { writer ->
+            results.foreach {
+              writer.write(it.toString())
+              writer.newLine()
+            }
+          }
+        }
       }
       else -> {
         val message =
@@ -137,4 +145,5 @@ interface TestParameter : WorkParameters {
   fun getSource(): ConfigurableFileCollection
   fun getClasspath(): ConfigurableFileCollection
   fun getDestinationDirectory(): DirectoryProperty
+  fun getTextReport(): RegularFileProperty
 }

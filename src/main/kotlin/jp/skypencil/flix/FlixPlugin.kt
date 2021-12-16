@@ -9,6 +9,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.*
+import org.gradle.api.reporting.ReportingExtension
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.jvm.tasks.Jar
@@ -115,6 +116,12 @@ abstract class FlixPlugin : Plugin<Project> {
           task.launcher.set(launcher)
           flixCompiler.resolve()
           task.classpath = project.files(dest)
+          task.report.set(
+              project
+                  .buildDir
+                  .resolve(ReportingExtension.DEFAULT_REPORTS_DIR_NAME)
+                  .resolve("flix")
+                  .resolve("main.txt"))
         }
     val fpkg = createFpkgTask(project, mainSourceSet.source)
     project.tasks.named(BasePlugin.ASSEMBLE_TASK_NAME) { it.dependsOn(fpkg) }
