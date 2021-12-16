@@ -3,7 +3,7 @@ import de.undercouch.gradle.tasks.download.Download
 plugins {
   `java-gradle-plugin`
   `convention-plugin`
-  id("org.jetbrains.kotlin.jvm") version "1.6.0"
+  id("org.jetbrains.kotlin.jvm") version "1.6.10"
   id("de.undercouch.download") version "4.1.2"
 }
 
