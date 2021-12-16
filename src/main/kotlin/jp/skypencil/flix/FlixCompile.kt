@@ -19,6 +19,7 @@ import org.gradle.api.tasks.compile.AbstractCompile
 import org.gradle.jvm.toolchain.JavaLauncher
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
+import org.gradle.workers.WorkerExecutor
 
 @CacheableTask
 abstract class FlixCompile : AbstractCompile() {
@@ -26,11 +27,13 @@ abstract class FlixCompile : AbstractCompile() {
   @get:Optional
   val launcher: Property<JavaLauncher> = project.objects.property(JavaLauncher::class.java)
 
-  @Inject abstract fun getWorkQueueFactory(): WorkQueueFactory
+  @Inject abstract fun getWorkerExecutor(): WorkerExecutor
+
+  private val workQueueFactory: WorkQueueFactory = WorkQueueFactory(logger, getWorkerExecutor())
 
   @TaskAction
   fun run() {
-    val workQueue = getWorkQueueFactory().createWorkQueue(launcher, classpath)
+    val workQueue = workQueueFactory.createWorkQueue(launcher, classpath)
     workQueue.submit(CompileAction::class.java) {
       it.getDestinationDirectory().set(destinationDirectory)
       it.getSource().from(source)
