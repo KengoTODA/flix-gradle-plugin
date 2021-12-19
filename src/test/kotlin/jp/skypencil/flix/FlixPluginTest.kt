@@ -19,6 +19,6 @@ class FlixPluginTest {
 
   @Test
   fun `plugin loads compiler version from a resource`() {
-    assertNotNull(FlixPlugin.Companion.loadCompilerVersion())
+    assertNotNull(FlixBasePlugin.Companion.loadCompilerVersion())
   }
 }
