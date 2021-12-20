@@ -80,7 +80,7 @@ tasks.named<Task>("build") { dependsOn(tasks.dokkaHtml) }
 
 pluginBundle {
   website = "https://github.com/KengoTODA/flix-gradle-plugin"
-  vcsUrl = "git@github.com:KengoTODA/flix-gradle-plugin.git"
+  vcsUrl = "https://github.com/KengoTODA/flix-gradle-plugin"
   tags = listOf("flix")
 }
 
