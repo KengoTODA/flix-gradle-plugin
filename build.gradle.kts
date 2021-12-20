@@ -9,6 +9,7 @@ plugins {
   id("org.jetbrains.kotlin.jvm") version "1.6.10"
 }
 
+group = "jp.skypencil.flix"
 val flixCompilerVersion = "v0.25.0"
 
 repositories {
