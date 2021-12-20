@@ -1,0 +1,30 @@
+{
+  "name": "flix-gradle-plugin",
+  "devDependencies": {
+    "gradle-semantic-release-plugin": "1.6.0",
+    "semantic-release": "18.0.1"
+  },
+  "release": {
+    "branches": [
+      {
+        "name": "main"
+      }
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "gradle-semantic-release-plugin",
+      [
+        "@semantic-release/github",
+        {
+          "assets": [
+            "build/libs/*.jar"
+          ]
+        }
+      ]
+    ]
+  },
+  "engines": {
+    "node": "^16.13.0"
+  }
+}

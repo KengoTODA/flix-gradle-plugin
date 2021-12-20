@@ -3,6 +3,7 @@ import de.undercouch.gradle.tasks.download.Download
 plugins {
   `java-gradle-plugin`
   `convention-plugin`
+  id("com.gradle.plugin-publish") version "0.18.0"
   id("org.jetbrains.kotlin.jvm") version "1.6.10"
   id("de.undercouch.download") version "4.1.2"
 }
@@ -45,11 +46,15 @@ gradlePlugin {
   val flixPlugin by
       plugins.creating {
         id = "jp.skypencil.flix"
+        displayName = "Flix plugin"
+        description = "A Gradle plugin which provides conventions for Flix projects"
         implementationClass = "jp.skypencil.flix.FlixPlugin"
       }
   val flixBasePlugin by
       plugins.creating {
         id = "jp.skypencil.flix-base"
+        displayName = "Flix base plugin"
+        description = "A Gradle plugin which provides tasks and an extension for Flix projects"
         implementationClass = "jp.skypencil.flix.FlixBasePlugin"
       }
 }
@@ -67,5 +72,11 @@ val functionalTest by
 gradlePlugin.testSourceSets(functionalTestSourceSet)
 
 tasks.named<Task>("check") { dependsOn(functionalTest) }
+
+pluginBundle {
+  website = "https://github.com/KengoTODA/flix-gradle-plugin"
+  vcsUrl = "git@github.com:KengoTODA/flix-gradle-plugin.git"
+  tags = listOf("flix")
+}
 
 defaultTasks("spotlessApply", "build")

@@ -3,6 +3,8 @@
 An experimental Gradle plugin to build [Flix language](https://flix.dev/) projects.
 
 [![.github/workflows/build.yml](https://github.com/KengoTODA/flix-gradle-plugin/actions/workflows/build.yml/badge.svg)](https://github.com/KengoTODA/flix-gradle-plugin/actions/workflows/build.yml)
+<!-- TODO add a Gradle plugins portal badge -->
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
 ## Getting Started
 ### Project layout
