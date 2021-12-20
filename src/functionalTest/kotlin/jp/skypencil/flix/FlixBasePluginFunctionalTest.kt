@@ -12,8 +12,8 @@ class FlixBasePluginFunctionalTest {
   @get:Rule val tempFolder = TemporaryFolder()
 
   private fun getProjectDir() = tempFolder.root
-  private fun getBuildFile() = getProjectDir().resolve("build.gradle")
-  private fun getSettingsFile() = getProjectDir().resolve("settings.gradle")
+  private fun getBuildFile() = getProjectDir().resolve("build.gradle.kts")
+  private fun getSettingsFile() = getProjectDir().resolve("settings.gradle.kts")
 
   @Test
   fun `can set FlixCompile task`() {
@@ -21,19 +21,22 @@ class FlixBasePluginFunctionalTest {
     getBuildFile()
         .writeText(
             """
+import jp.skypencil.flix.FlixCompile
+import jp.skypencil.flix.FlixTest
 plugins {
-    id('jp.skypencil.flix-base')
+    id("jp.skypencil.flix-base")
 }
-val flixCompile = tasks.register<FlixCompile>("flixCompile") {
+val compileFlix = tasks.register<FlixCompile>("compileFlix") {
     source = fileTree("src")
-    destinationDirectory.set(file("build/classes/flix/main")
+    destinationDirectory.set(file("build/classes/flix/main"))
 }
-val flixTest = tasks.register<FlixTest>("flixTest") {
+val testFlix = tasks.register<FlixTest>("testFlix") {
     source = fileTree("test")
-    destinationDirectory.set(file("build/classes/flix/test")
+    destinationDirectory.set(file("build/classes/flix/test"))
+    report.set(file("build/reports/flix/main.txt"))
 }
-tasks.named<Task>("classes") { dependsOn(flixCompile) }
-tasks.named<Task>("check") { dependsOn(flixTest) }
+tasks.named<Task>("assemble") { dependsOn(compileFlix) }
+tasks.named<Task>("check") { dependsOn(testFlix) }
 """)
 
     getProjectDir().resolve("src").mkdirs()
@@ -48,7 +51,7 @@ def main(_args: Array[String]): Int32 & Impure =
 """)
     getProjectDir().resolve("test").mkdirs()
     getProjectDir()
-        .resolve("src/TestMain.flix")
+        .resolve("test/TestMain.flix")
         .writeText("""
 @test
 def test01(): Bool = 1 + 1 == 2

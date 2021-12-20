@@ -27,10 +27,10 @@ class FlixBasePlugin : Plugin<Project> {
           it.dest(dest)
         }
     project.tasks.withType(FlixCompile::class.java) {
-      it.classpath += project.files(dest).builtBy(downloadFlixCompiler)
+      it.classpath = project.files(dest).builtBy(downloadFlixCompiler)
     }
     project.tasks.withType(FlixTest::class.java) {
-      it.classpath += project.files(dest).builtBy(downloadFlixCompiler)
+      it.classpath = project.files(dest).builtBy(downloadFlixCompiler)
     }
     val flixCompiler = project.configurations.create(CONFIGURATION_FOR_COMPILER)
     flixCompiler.defaultDependencies { dependencySet ->
