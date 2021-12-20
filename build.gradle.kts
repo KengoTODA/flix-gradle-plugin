@@ -72,12 +72,11 @@ val functionalTest by
 
 gradlePlugin.testSourceSets(functionalTestSourceSet)
 
-val dokkaHtml =
-    tasks.dokkaHtml.configure { outputDirectory.set(buildDir.resolve("reports").resolve("dokka")) }
+tasks.dokkaHtml.configure { outputDirectory.set(buildDir.resolve("reports").resolve("dokka")) }
 
 tasks.named<Task>("check") { dependsOn(functionalTest) }
 
-tasks.named<Task>("build") { dependsOn(dokkaHtml) }
+tasks.named<Task>("build") { dependsOn(tasks.dokkaHtml) }
 
 pluginBundle {
   website = "https://github.com/KengoTODA/flix-gradle-plugin"
