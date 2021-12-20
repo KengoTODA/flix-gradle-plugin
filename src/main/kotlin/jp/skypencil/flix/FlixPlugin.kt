@@ -83,6 +83,7 @@ abstract class FlixPlugin : Plugin<Project> {
     val testFlix =
         project.tasks.register("testFlix", FlixTest::class.java) { task ->
           task.source = mainSourceSet.source + testSourceSet.source
+          task.destinationDirectory.set(testSourceSet.output)
           task.launcher.set(launcher)
           task.report.set(
               project
