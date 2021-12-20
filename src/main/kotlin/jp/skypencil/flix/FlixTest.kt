@@ -22,6 +22,21 @@ import org.gradle.workers.WorkerExecutor
 import scala.Function0
 import scala.Tuple2
 
+/**
+ * Task to run Flix test cases.
+ *
+ * Here is an example to register a task to run Flix test cases located in the `test` directory:
+ *
+ * ```kotlin
+ * tasks.register<FlixCompile>("testFlix") {
+ *   source = fileTree("test")
+ *   destinationDirectory.set(file("build/classes/flix/test"))
+ *   report.set(file("build/reports/flix/main.txt"))
+ * }
+ * ```
+ *
+ * @since 1.0
+ */
 @CacheableTask
 abstract class FlixTest : AbstractCompile() {
   @get:Nested

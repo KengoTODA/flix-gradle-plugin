@@ -4,8 +4,9 @@ plugins {
   `java-gradle-plugin`
   `convention-plugin`
   id("com.gradle.plugin-publish") version "0.18.0"
-  id("org.jetbrains.kotlin.jvm") version "1.6.10"
   id("de.undercouch.download") version "4.1.2"
+  id("org.jetbrains.dokka") version "1.6.0"
+  id("org.jetbrains.kotlin.jvm") version "1.6.10"
 }
 
 val flixCompilerVersion = "v0.25.0"
@@ -71,7 +72,11 @@ val functionalTest by
 
 gradlePlugin.testSourceSets(functionalTestSourceSet)
 
+tasks.dokkaHtml.configure { outputDirectory.set(buildDir.resolve("reports").resolve("dokka")) }
+
 tasks.named<Task>("check") { dependsOn(functionalTest) }
+
+tasks.named<Task>("build") { dependsOn(tasks.dokkaHtml) }
 
 pluginBundle {
   website = "https://github.com/KengoTODA/flix-gradle-plugin"

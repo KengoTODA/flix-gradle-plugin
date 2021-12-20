@@ -21,6 +21,20 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
 
+/**
+ * Task to compile Flix code into class files.
+ *
+ * Here is an example to register a task to compile Flix code located in the `src` directory:
+ *
+ * ```kotlin
+ * tasks.register<FlixCompile>("compileFlix") {
+ *   source = fileTree("src")
+ *   destinationDirectory.set(file("build/classes/flix/main"))
+ * }
+ * ```
+ *
+ * @since 1.0
+ */
 @CacheableTask
 abstract class FlixCompile : AbstractCompile() {
   @get:Nested

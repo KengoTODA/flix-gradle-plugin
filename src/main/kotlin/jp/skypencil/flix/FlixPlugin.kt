@@ -1,7 +1,6 @@
 /* (C) Kengo TODA 2021 */
 package jp.skypencil.flix
 
-import java.util.*
 import javax.inject.Inject
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -14,6 +13,15 @@ import org.gradle.api.tasks.bundling.Zip
 import org.gradle.jvm.tasks.Jar
 import org.gradle.jvm.toolchain.JavaToolchainService
 
+/**
+ * The convention plugin which provides conventions for Flix projects.
+ *
+ * This plugin is useful to build Flix projects which follows the Gradle standard directory layout,
+ * like `src/main/flix` and `src/test/flix` directories. Useful to integrate Flix code into existing
+ * Gradle projects.
+ *
+ * @since 1.0
+ */
 abstract class FlixPlugin : Plugin<Project> {
   @Inject abstract fun getJavaToolchainService(): JavaToolchainService
 
