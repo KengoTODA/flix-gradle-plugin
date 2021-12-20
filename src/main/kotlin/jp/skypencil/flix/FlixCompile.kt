@@ -6,6 +6,7 @@ import ca.uwaterloo.flix.language.CompilationMessage
 import ca.uwaterloo.flix.util.Options
 import ca.uwaterloo.flix.util.vt.TerminalContext
 import javax.inject.Inject
+import jp.skypencil.flix.internal.WorkQueueFactory
 import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
@@ -28,19 +29,11 @@ abstract class FlixCompile : AbstractCompile() {
 
   @Inject abstract fun getWorkerExecutor(): WorkerExecutor
 
+  private val workQueueFactory: WorkQueueFactory = WorkQueueFactory(logger, getWorkerExecutor())
+
   @TaskAction
   fun run() {
-    val workQueue =
-        if (launcher.isPresent) {
-          getWorkerExecutor().processIsolation { workerSpec ->
-            workerSpec.classpath.from(classpath)
-            workerSpec.forkOptions.setExecutable(launcher.get().executablePath)
-          }
-        } else {
-          getWorkerExecutor().classLoaderIsolation { workerSpec ->
-            workerSpec.classpath.from(classpath)
-          }
-        }
+    val workQueue = workQueueFactory.createWorkQueue(launcher, classpath)
     workQueue.submit(CompileAction::class.java) {
       it.getDestinationDirectory().set(destinationDirectory)
       it.getSource().from(source)
@@ -82,7 +75,7 @@ abstract class CompileAction : WorkAction<CompileParameter> {
         it.name.endsWith(".fpkg") -> flix.addPath(it.toPath())
         it.name.endsWith(".jar") -> flix.addJar(it.toPath())
         else -> {
-          // logger.debug("{} found in the compile classpath but ignored", it.toPath())
+          System.err.printf("%s found in the compile classpath but ignored", it.toPath())
         }
       }
     }
@@ -92,7 +85,7 @@ abstract class CompileAction : WorkAction<CompileParameter> {
     val compileResult = flix.compile()
     when {
       compileResult.errors().isEmpty -> {
-        // logger.debug("Flix code has been compiled successfully.")
+        System.err.println("Flix code has been compiled successfully.")
       }
       else -> {
         val message =

@@ -8,8 +8,6 @@ abstract class FlixSourceSet(val name: String) {
 
   lateinit var source: SourceDirectorySet
 
-  lateinit var resources: SourceDirectorySet
-
   lateinit var output: DirectoryProperty
 
   private fun toUpperCamel(string: String): String {

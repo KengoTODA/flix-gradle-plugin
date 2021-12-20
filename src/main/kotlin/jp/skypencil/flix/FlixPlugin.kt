@@ -1,7 +1,6 @@
 /* (C) Kengo TODA 2021 */
 package jp.skypencil.flix
 
-import de.undercouch.gradle.tasks.download.Download
 import java.util.*
 import javax.inject.Inject
 import org.gradle.api.Plugin
@@ -35,31 +34,9 @@ abstract class FlixPlugin : Plugin<Project> {
     }
   }
   override fun apply(project: Project) {
-    project.plugins.apply("java-base")
+    project.plugins.apply(FlixBasePlugin::class.java)
     val javaExtension = project.extensions.findByType(JavaPluginExtension::class.java)!!
-
-    val extension = project.extensions.create("flix", FlixExtension::class.java)
-    extension.apply {
-      compilerVersion.convention(loadCompilerVersion())
-      sourceSets = project.objects.domainObjectContainer(FlixSourceSet::class.java)
-    }
-
-    val src =
-        extension.compilerVersion.map {
-          "https://github.com/flix/flix/releases/download/$it/flix.jar"
-        }
-    val dest = extension.compilerVersion.map { project.buildDir.resolve("flix/$it/flix.jar") }
-    val downloadFlixCompiler =
-        project.tasks.register("downloadFlixCompiler", Download::class.java) { download ->
-          download.src(src)
-          download.dest(dest)
-        }
-
-    val flixCompiler = project.configurations.create(CONFIGURATION_FOR_COMPILER)
-    flixCompiler.defaultDependencies { dependencySet ->
-      val dependency = project.dependencies.create(project.files(dest))
-      dependencySet.add(dependency)
-    }
+    val extension = project.extensions.findByType(FlixExtension::class.java)!!
 
     val mainSourceSet =
         extension.sourceSets.create("main").apply {
@@ -68,11 +45,6 @@ abstract class FlixPlugin : Plugin<Project> {
                   .objects
                   .sourceDirectorySet("flix", "Flix main source")
                   .setSrcDirs(listOf("src/main/flix"))
-          resources =
-              project
-                  .objects
-                  .sourceDirectorySet("resources", "Flix main resource")
-                  .setSrcDirs(listOf("src/main/resources"))
           output =
               project
                   .objects
@@ -86,11 +58,6 @@ abstract class FlixPlugin : Plugin<Project> {
                   .objects
                   .sourceDirectorySet("flix", "Flix test source")
                   .setSrcDirs(listOf("src/test/flix"))
-          resources =
-              project
-                  .objects
-                  .sourceDirectorySet("resources", "Flix test resource")
-                  .setSrcDirs(listOf("src/test/resources"))
           output =
               project
                   .objects
@@ -101,21 +68,15 @@ abstract class FlixPlugin : Plugin<Project> {
     val compileFlix =
         project.tasks.register(mainSourceSet.getCompileTaskName(), FlixCompile::class.java) { task
           ->
-          task.dependsOn(downloadFlixCompiler)
           task.source = mainSourceSet.source
           task.destinationDirectory.set(mainSourceSet.output)
           task.launcher.set(launcher)
-          flixCompiler.resolve()
-          task.classpath = project.files(dest)
         }
     val testFlix =
         project.tasks.register("testFlix", FlixTest::class.java) { task ->
-          task.dependsOn(downloadFlixCompiler)
           task.source = mainSourceSet.source + testSourceSet.source
           task.destinationDirectory.set(testSourceSet.output)
           task.launcher.set(launcher)
-          flixCompiler.resolve()
-          task.classpath = project.files(dest)
           task.report.set(
               project
                   .buildDir
@@ -139,17 +100,6 @@ abstract class FlixPlugin : Plugin<Project> {
   }
 
   companion object {
-    const val CONFIGURATION_FOR_COMPILER = "flixCompiler"
     const val DEFAULT_MAIN_CLASS = "Main"
-    private const val PROPERTIES_FILE_NAME = "flix-gradle-plugin.properties"
-
-    fun loadCompilerVersion(): String {
-      val url = FlixPlugin::class.java.classLoader.getResource(PROPERTIES_FILE_NAME)!!
-      url.openStream().use {
-        val prop = Properties()
-        prop.load(it)
-        return prop.getProperty("compiler-version")
-      }
-    }
   }
 }

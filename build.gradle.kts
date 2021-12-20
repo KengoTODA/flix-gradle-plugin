@@ -47,6 +47,11 @@ gradlePlugin {
         id = "jp.skypencil.flix"
         implementationClass = "jp.skypencil.flix.FlixPlugin"
       }
+  val flixBasePlugin by
+      plugins.creating {
+        id = "jp.skypencil.flix-base"
+        implementationClass = "jp.skypencil.flix.FlixBasePlugin"
+      }
 }
 
 val functionalTestSourceSet = sourceSets.create("functionalTest") {}
