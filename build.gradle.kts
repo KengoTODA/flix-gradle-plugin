@@ -10,6 +10,7 @@ plugins {
 }
 
 group = "jp.skypencil.flix"
+
 val flixCompilerVersion = "v0.25.0"
 
 repositories {
