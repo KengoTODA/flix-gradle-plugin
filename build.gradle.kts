@@ -3,6 +3,7 @@ import de.undercouch.gradle.tasks.download.Download
 plugins {
   `java-gradle-plugin`
   `convention-plugin`
+  `maven-publish`
   id("com.gradle.plugin-publish") version "0.18.0"
   id("de.undercouch.download") version "4.1.2"
   id("org.jetbrains.dokka") version "1.6.0"
@@ -84,6 +85,24 @@ pluginBundle {
   website = "https://github.com/KengoTODA/flix-gradle-plugin"
   vcsUrl = "https://github.com/KengoTODA/flix-gradle-plugin"
   tags = listOf("flix")
+}
+
+configure<PublishingExtension> {
+  publications.withType<MavenPublication> {
+    pom {
+      scm {
+        connection.set("git@github.com:KengoTODA/flix-gradle-plugin.git")
+        developerConnection.set("git@github.com:KengoTODA/flix-gradle-plugin.git")
+        url.set("https://github.com/KengoTODA/flix-gradle-plugin")
+      }
+      licenses {
+        license {
+          name.set("GNU Affero General Public License v3.0")
+          url.set("https://www.gnu.org/licenses/agpl-3.0.en.html")
+        }
+      }
+    }
+  }
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
