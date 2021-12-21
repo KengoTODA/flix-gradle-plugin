@@ -87,7 +87,7 @@ pluginBundle {
   tags = listOf("flix")
 }
 
-configure<PublishingExtension> {
+publishing {
   publications.withType<MavenPublication> {
     pom {
       scm {
