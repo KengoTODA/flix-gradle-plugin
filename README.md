@@ -3,7 +3,7 @@
 An experimental Gradle plugin to build [Flix language](https://flix.dev/) projects.
 
 [![.github/workflows/build.yml](https://github.com/KengoTODA/flix-gradle-plugin/actions/workflows/build.yml/badge.svg)](https://github.com/KengoTODA/flix-gradle-plugin/actions/workflows/build.yml)
-[![Gradle Plugin Portal](https://img.shields.io/maven-metadata/v?label=Plugin+Portal&metadataUrl=https%3A%2F%2Fplugins.gradle.org%2Fm2%2Fjp%2Fskypencil%2Fflix%2Fjp.skypencil.flix%2Fmaven-metadata.xml)](https://plugins.gradle.org/plugin/jp.skypencil.flix)
+[![Gradle Plugin Portal](https://img.shields.io/maven-metadata/v?label=Plugin+Portal&metadataUrl=https%3A%2F%2Fplugins.gradle.org%2Fm2%2Fjp%2Fskypencil%2Fflix%2Fflix-gradle-plugin%2Fmaven-metadata.xml)](https://plugins.gradle.org/plugin/jp.skypencil.flix)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/e9d2cc3c9644462196d554e884ee4ce1)](https://www.codacy.com/gh/KengoTODA/flix-gradle-plugin/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=KengoTODA/flix-gradle-plugin&amp;utm_campaign=Badge_Grade)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
