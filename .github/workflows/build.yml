@@ -20,14 +20,10 @@ jobs:
           distribution: temurin
           cache: gradle
       - run: ./gradlew spotlessCheck build --no-daemon
-      - name: Read .nvmrc
-        run: echo "##[set-output name=NVMRC;]$(cat .nvmrc)"
-        id: nvm
-        if: matrix.os == 'ubuntu-latest'
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '${{ steps.nvm.outputs.NVMRC }}'
+          node-version-file: '.nvmrc'
           cache: npm
         if: matrix.os == 'ubuntu-latest'
       - name: Run Semantic Release
@@ -39,7 +35,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: matrix.os == 'ubuntu-latest'
-      - uses: actions/upload-artifact@v2.2.4
+      - uses: actions/upload-artifact@v2
         if: always()
         with:
           name: reports (${{ matrix.os }})
