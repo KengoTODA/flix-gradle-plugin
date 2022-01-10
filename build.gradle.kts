@@ -12,7 +12,7 @@ plugins {
 
 group = "jp.skypencil.flix"
 
-val flixCompilerVersion = "v0.25.0"
+val flixCompilerVersion = "v0.26.0"
 
 repositories {
   mavenCentral()
