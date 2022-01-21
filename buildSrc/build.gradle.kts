@@ -10,6 +10,6 @@ repositories {
 
 java { toolchain { languageVersion.set(JavaLanguageVersion.of("17")) } }
 
-dependencies { implementation("com.diffplug.spotless:spotless-plugin-gradle:6.1.2") }
+dependencies { implementation("com.diffplug.spotless:spotless-plugin-gradle:6.2.0") }
 
 configure<com.diffplug.gradle.spotless.SpotlessExtension> { kotlinGradle { ktfmt() } }
