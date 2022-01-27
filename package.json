@@ -2,8 +2,8 @@
   "name": "flix-gradle-plugin",
   "license": "AGPL-3.0-only",
   "devDependencies": {
-    "gradle-semantic-release-plugin": "1.6.2",
-    "semantic-release": "18.0.1"
+    "gradle-semantic-release-plugin": "1.6.3",
+    "semantic-release": "19.0.2"
   },
   "release": {
     "branches": [
