@@ -5,7 +5,7 @@ plugins {
   `convention-plugin`
   `maven-publish`
   id("com.gradle.plugin-publish") version "0.20.0"
-  id("de.undercouch.download") version "4.1.2"
+  id("de.undercouch.download") version "5.0.1"
   id("org.jetbrains.dokka") version "1.6.10"
   id("org.jetbrains.kotlin.jvm") version "1.6.10"
 }
