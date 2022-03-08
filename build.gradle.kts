@@ -35,7 +35,7 @@ val processVersionFile =
 tasks.named<Task>("processResources") { dependsOn(processVersionFile) }
 
 dependencies {
-  implementation("de.undercouch:gradle-download-task:4.1.2")
+  implementation("de.undercouch:gradle-download-task:5.0.2")
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
