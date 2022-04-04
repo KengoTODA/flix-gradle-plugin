@@ -7,7 +7,7 @@ plugins {
   id("com.gradle.plugin-publish") version "0.20.0"
   id("de.undercouch.download") version "5.0.2"
   id("org.jetbrains.dokka") version "1.6.10"
-  id("org.jetbrains.kotlin.jvm") version "1.6.10"
+  id("org.jetbrains.kotlin.jvm") version "1.6.20"
 }
 
 group = "jp.skypencil.flix"
