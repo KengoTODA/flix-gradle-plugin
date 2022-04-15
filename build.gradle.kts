@@ -6,7 +6,7 @@ plugins {
   `maven-publish`
   id("com.gradle.plugin-publish") version "0.21.0"
   id("de.undercouch.download") version "5.0.4"
-  id("org.jetbrains.dokka") version "1.6.10"
+  id("org.jetbrains.dokka") version "1.6.20"
   id("org.jetbrains.kotlin.jvm") version "1.6.20"
 }
 
