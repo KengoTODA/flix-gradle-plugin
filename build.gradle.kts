@@ -1,11 +1,8 @@
-import de.undercouch.gradle.tasks.download.Download
-
 plugins {
   `java-gradle-plugin`
   `convention-plugin`
   `maven-publish`
   id("com.gradle.plugin-publish") version "0.21.0"
-  id("de.undercouch.download") version "5.0.5"
   id("org.jetbrains.dokka") version "1.6.20"
   id("org.jetbrains.kotlin.jvm") version "1.6.20"
 }
@@ -19,13 +16,6 @@ repositories {
   gradlePluginPortal()
 }
 
-val downloadFlixCompiler =
-    tasks.register<Download>("downloadFlixCompiler") {
-      src("https://github.com/flix/flix/releases/download/$flixCompilerVersion/flix.jar")
-      dest("$buildDir/flix/flix-$flixCompilerVersion.jar")
-      onlyIfModified(true)
-    }
-
 val processVersionFile =
     tasks.register<WriteProperties>("processVersionFile") {
       outputFile = file("$buildDir/resources/main/flix-gradle-plugin.properties")
@@ -34,16 +24,19 @@ val processVersionFile =
 
 tasks.named<Task>("processResources") { dependsOn(processVersionFile) }
 
+val flixCompiler = tasks.downloadFlixCompiler.map { it.outputs.files }
+
 dependencies {
   implementation("de.undercouch:gradle-download-task:5.0.5")
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+  implementation(project("modules:packager-shell"))
 
-  compileOnly(downloadFlixCompiler.map { it.outputs.files })
+  compileOnly(flixCompiler)
 
   testImplementation("org.jetbrains.kotlin:kotlin-test")
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
-  testImplementation(downloadFlixCompiler.map { it.outputs.files })
+  testImplementation(flixCompiler)
 }
 
 gradlePlugin {

@@ -8,3 +8,5 @@ gradleEnterprise {
     termsOfServiceAgree = "yes"
   }
 }
+
+include("modules:packager-shell")
