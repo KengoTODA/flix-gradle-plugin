@@ -3,7 +3,7 @@ plugins {
   `convention-plugin`
   `maven-publish`
   id("com.gradle.plugin-publish") version "0.21.0"
-  id("org.jetbrains.dokka") version "1.6.20"
+  id("org.jetbrains.dokka") version "1.6.21"
   id("org.jetbrains.kotlin.jvm") version "1.6.21"
 }
 
