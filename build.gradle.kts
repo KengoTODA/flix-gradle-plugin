@@ -55,6 +55,8 @@ gradlePlugin {
 
 val functionalTestSourceSet = sourceSets.create("functionalTest") {}
 
+configurations["functionalTestImplementation"].extendsFrom(configurations["testImplementation"])
+
 val functionalTest by
     tasks.registering(Test::class) {
       testClassesDirs = functionalTestSourceSet.output.classesDirs
