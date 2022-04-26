@@ -3,7 +3,7 @@ plugins {
   `convention-plugin`
   `maven-publish`
   id("com.gradle.plugin-publish") version "0.21.0"
-  id("org.jetbrains.dokka") version "1.6.20"
+  id("org.jetbrains.dokka") version "1.6.21"
   id("org.jetbrains.kotlin.jvm") version "1.6.21"
 }
 
@@ -20,8 +20,8 @@ dependencies {
   implementation("de.undercouch:gradle-download-task:5.0.5")
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-  implementation(project("modules:packager-shell"))
 
+  compileOnly(project("modules:packager-shell"))
   compileOnly(flixCompiler)
 
   testImplementation("org.jetbrains.kotlin:kotlin-test")
@@ -58,11 +58,19 @@ val functionalTest by
 
 gradlePlugin.testSourceSets(functionalTestSourceSet)
 
+val copyPackagerShell by
+    tasks.registering(Copy::class) {
+      from("modules/packager-shell/build/classes/scala/main")
+      into("build/classes/kotlin/main")
+    }
+
 tasks.dokkaHtml.configure { outputDirectory.set(buildDir.resolve("reports").resolve("dokka")) }
 
 tasks.named<Task>("check") { dependsOn(functionalTest) }
 
 tasks.named<Task>("build") { dependsOn(tasks.dokkaHtml) }
+
+tasks.named<Task>("compileKotlin") { finalizedBy(copyPackagerShell) }
 
 pluginBundle {
   website = "https://github.com/KengoTODA/flix-gradle-plugin"
