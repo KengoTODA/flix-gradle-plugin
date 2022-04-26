@@ -3,7 +3,6 @@ package jp.skypencil.flix
 
 import ca.uwaterloo.flix.api.Flix
 import ca.uwaterloo.flix.language.CompilationMessage
-import ca.uwaterloo.flix.util.vt.TerminalContext
 import javax.inject.Inject
 import jp.skypencil.flix.internal.`PackagerShell$`
 import jp.skypencil.flix.internal.WorkQueueFactory
@@ -64,11 +63,11 @@ abstract class CompileAction : WorkAction<CompileParameter> {
 
     val flix = Flix()
     parameters.getSource().asFileTree.matching { it.include("*.flix") }.forEach {
-      flix.addPath(it.toPath())
+      flix.addSourcePath(it.toPath())
     }
     parameters.getClasspath().forEach {
       when {
-        it.name.endsWith(".fpkg") -> flix.addPath(it.toPath())
+        it.name.endsWith(".fpkg") -> flix.addSourcePath(it.toPath())
         it.name.endsWith(".jar") -> flix.addJar(it.toPath())
         else -> {
           System.err.printf("%s found in the compile classpath but ignored", it.toPath())
@@ -77,7 +76,6 @@ abstract class CompileAction : WorkAction<CompileParameter> {
     }
 
     flix.setOptions(options)
-    val context = TerminalContext.`AnsiTerminal$`.`MODULE$`
     val compileResult = flix.compile()
     when {
       compileResult.errors().isEmpty -> {
@@ -87,7 +85,7 @@ abstract class CompileAction : WorkAction<CompileParameter> {
         val message =
             compileResult
                 .errors()
-                .map { m: CompilationMessage -> m.message().fmt(context) }
+                .map { m: CompilationMessage -> m.message(flix.formatter) }
                 .reduce { l: String, r: String -> "$l,$r" }
         throw GradleException("Failed to compile Flix code: $message")
       }

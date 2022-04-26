@@ -13,7 +13,7 @@ tasks.withType<JavaCompile> {
   options.release.set(8)
 }
 
-val flixCompilerVersion = "v0.25.0"
+val flixCompilerVersion = "v0.27.0"
 tasks.register<Download>("downloadFlixCompiler") {
   src("https://github.com/flix/flix/releases/download/$flixCompilerVersion/flix.jar")
   dest("$buildDir/flix/flix-$flixCompilerVersion.jar")
