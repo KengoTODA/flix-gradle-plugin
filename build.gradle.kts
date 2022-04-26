@@ -5,7 +5,6 @@ plugins {
   id("com.gradle.plugin-publish") version "0.21.0"
   id("org.jetbrains.dokka") version "1.6.21"
   id("org.jetbrains.kotlin.jvm") version "1.6.21"
-  id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "jp.skypencil.flix"
@@ -22,21 +21,12 @@ dependencies {
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-  shadow(project("modules:packager-shell"))
+  compileOnly(project("modules:packager-shell"))
   compileOnly(flixCompiler)
 
   testImplementation("org.jetbrains.kotlin:kotlin-test")
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
   testImplementation(flixCompiler)
-}
-
-tasks {
-  jar {
-    classifier = "default"
-    enabled = false
-  }
-
-  shadowJar { classifier = null }
 }
 
 gradlePlugin {
@@ -68,11 +58,19 @@ val functionalTest by
 
 gradlePlugin.testSourceSets(functionalTestSourceSet)
 
+val copyPackagerShell by
+    tasks.registering(Copy::class) {
+      from("modules/packager-shell/build/classes/scala/main")
+      into("build/classes/kotlin/main")
+    }
+
 tasks.dokkaHtml.configure { outputDirectory.set(buildDir.resolve("reports").resolve("dokka")) }
 
 tasks.named<Task>("check") { dependsOn(functionalTest) }
 
 tasks.named<Task>("build") { dependsOn(tasks.dokkaHtml) }
+
+tasks.named<Task>("compileKotlin") { finalizedBy(copyPackagerShell) }
 
 pluginBundle {
   website = "https://github.com/KengoTODA/flix-gradle-plugin"
@@ -82,7 +80,6 @@ pluginBundle {
 
 publishing {
   publications.withType<MavenPublication> {
-    artifact(tasks.shadowJar)
     pom {
       scm {
         connection.set("git@github.com:KengoTODA/flix-gradle-plugin.git")
