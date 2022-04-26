@@ -5,6 +5,7 @@ plugins {
   id("com.gradle.plugin-publish") version "0.21.0"
   id("org.jetbrains.dokka") version "1.6.21"
   id("org.jetbrains.kotlin.jvm") version "1.6.21"
+  id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "jp.skypencil.flix"
@@ -21,16 +22,23 @@ dependencies {
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-  compileOnly(project("modules:packager-shell"))
+  shadow(project("modules:packager-shell"))
   compileOnly(flixCompiler)
 
   testImplementation("org.jetbrains.kotlin:kotlin-test")
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
-  testImplementation(project("modules:packager-shell"))
   testImplementation(flixCompiler)
 }
 
-tasks.jar { from(fileTree("modules/packager-shell/build/classes/scala/main")) }
+tasks {
+  jar {
+    classifier = "default"
+  }
+
+  shadowJar {
+    classifier = null
+  }
+}
 
 gradlePlugin {
   val flixPlugin by
@@ -50,8 +58,6 @@ gradlePlugin {
 }
 
 val functionalTestSourceSet = sourceSets.create("functionalTest") {}
-
-configurations["functionalTestImplementation"].extendsFrom(configurations["testImplementation"])
 
 val functionalTest by
     tasks.registering(Test::class) {
