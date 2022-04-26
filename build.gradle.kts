@@ -26,6 +26,7 @@ dependencies {
 
   testImplementation("org.jetbrains.kotlin:kotlin-test")
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+  testImplementation(project("modules:packager-shell"))
   testImplementation(flixCompiler)
 }
 
