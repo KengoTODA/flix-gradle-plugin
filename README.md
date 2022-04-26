@@ -23,7 +23,6 @@ configure<JavaPluginExtension> {
   }
 }
 configure<FlixExtension> {
-  compilerVersion.set("v0.25.0")
   sourceSets {
     main {
       setSrcDirs(["src/main/flix"])

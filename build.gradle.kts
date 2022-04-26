@@ -9,20 +9,10 @@ plugins {
 
 group = "jp.skypencil.flix"
 
-val flixCompilerVersion = "v0.25.0"
-
 repositories {
   mavenCentral()
   gradlePluginPortal()
 }
-
-val processVersionFile =
-    tasks.register<WriteProperties>("processVersionFile") {
-      outputFile = file("$buildDir/resources/main/flix-gradle-plugin.properties")
-      property("compiler-version", flixCompilerVersion)
-    }
-
-tasks.named<Task>("processResources") { dependsOn(processVersionFile) }
 
 val flixCompiler = tasks.downloadFlixCompiler.map { it.outputs.files }
 
