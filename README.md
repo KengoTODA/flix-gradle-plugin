@@ -15,7 +15,7 @@ To integrate Flix into a Gradle project with other languages, apply the conventi
 ```kotlin
 plugins {
   `application`
-  id("jp.skypencil.flix") version "1.0.0"
+  id("jp.skypencil.flix") version "1.1.0"
 }
 configure<JavaPluginExtension> {
   toolchain {
@@ -67,7 +67,7 @@ tasks.named<Task>("check") { dependsOn(testFlix) }
 ### Limitation
 
 * No support for resource files such as `src/main/resources` and `src/test/resources`.
-* Not tested with Flix v0.24.0 and older versions.
+* Not tested with Flix v0.26.0 and older versions.
 * Test reports generated at `build/reports/flix/main.txt` is quite simple.
 
 ## Developers' guideline
@@ -83,4 +83,4 @@ tasks.named<Task>("check") { dependsOn(testFlix) }
 
 ## Copyright
 
-Copyright &copy; 2021 Kengo TODA
+Copyright &copy; 2021-2022 Kengo TODA
