@@ -16,9 +16,4 @@ class FlixPluginTest {
     // Verify the result
     assertNotNull(project.tasks.findByName("compileFlix"))
   }
-
-  @Test
-  fun `plugin loads compiler version from a resource`() {
-    assertNotNull(FlixBasePlugin.Companion.loadCompilerVersion())
-  }
 }
