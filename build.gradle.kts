@@ -31,7 +31,10 @@ dependencies {
 }
 
 tasks {
-  jar { classifier = "default" }
+  jar {
+    classifier = "default"
+    enabled = false
+  }
 
   shadowJar { classifier = null }
 }
@@ -79,6 +82,7 @@ pluginBundle {
 
 publishing {
   publications.withType<MavenPublication> {
+    artifact(tasks.shadowJar)
     pom {
       scm {
         connection.set("git@github.com:KengoTODA/flix-gradle-plugin.git")
