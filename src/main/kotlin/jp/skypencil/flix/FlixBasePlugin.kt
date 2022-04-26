@@ -20,15 +20,11 @@ class FlixBasePlugin : Plugin<Project> {
 
     val extension = project.extensions.create("flix", FlixExtension::class.java)
     extension.apply {
-      compilerVersion.convention(loadCompilerVersion())
       sourceSets = project.objects.domainObjectContainer(FlixSourceSet::class.java)
     }
 
-    val src =
-        extension.compilerVersion.map {
-          "https://github.com/flix/flix/releases/download/$it/flix.jar"
-        }
-    val dest = extension.compilerVersion.map { project.buildDir.resolve("flix/$it/flix.jar") }
+    val src = "https://github.com/flix/flix/releases/download/${COMPILER_VERSION}/flix.jar"
+    val dest = project.buildDir.resolve("flix/${COMPILER_VERSION}/flix.jar")
     val downloadFlixCompiler =
         project.tasks.register(DOWNLOAD_COMPILER_TASK_NAME, Download::class.java) { it ->
           it.src(src)
@@ -50,15 +46,6 @@ class FlixBasePlugin : Plugin<Project> {
   companion object {
     const val CONFIGURATION_FOR_COMPILER = "flixCompiler"
     const val DOWNLOAD_COMPILER_TASK_NAME = "downloadFlixCompiler"
-    private const val PROPERTIES_FILE_NAME = "flix-gradle-plugin.properties"
-
-    fun loadCompilerVersion(): String {
-      val url = FlixPlugin::class.java.classLoader.getResource(PROPERTIES_FILE_NAME)!!
-      url.openStream().use {
-        val prop = Properties()
-        prop.load(it)
-        return prop.getProperty("compiler-version")
-      }
-    }
+    const val COMPILER_VERSION = "v0.27.0"
   }
 }

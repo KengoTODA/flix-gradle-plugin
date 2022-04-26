@@ -11,17 +11,17 @@ jobs:
         os: ['windows-latest', 'ubuntu-latest']
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: gradle/wrapper-validation-action@v1
       - name: Set up JDK 17
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: temurin
           cache: gradle
       - run: ./gradlew spotlessCheck build --no-daemon
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version-file: '.nvmrc'
           cache: npm
@@ -35,7 +35,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: matrix.os == 'ubuntu-latest'
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: reports (${{ matrix.os }})
