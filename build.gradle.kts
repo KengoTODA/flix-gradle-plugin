@@ -31,13 +31,9 @@ dependencies {
 }
 
 tasks {
-  jar {
-    classifier = "default"
-  }
+  jar { classifier = "default" }
 
-  shadowJar {
-    classifier = null
-  }
+  shadowJar { classifier = null }
 }
 
 gradlePlugin {
