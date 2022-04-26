@@ -19,7 +19,9 @@ jobs:
           java-version: '17'
           distribution: temurin
           cache: gradle
-      - run: ./gradlew spotlessCheck build --no-daemon
+      - run: |
+          ./gradlew spotlessCheck build --no-daemon
+          unzip -l build/libs/flix-gradle-plugin.jar
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
