@@ -5,6 +5,7 @@ plugins {
   id("com.gradle.plugin-publish") version "0.21.0"
   id("org.jetbrains.dokka") version "1.6.20"
   id("org.jetbrains.kotlin.jvm") version "1.6.21"
+  id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "jp.skypencil.flix"
@@ -20,7 +21,7 @@ dependencies {
   implementation("de.undercouch:gradle-download-task:5.0.5")
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-  implementation(project("modules:packager-shell"))
+  shadow(project("modules:packager-shell"))
 
   compileOnly(flixCompiler)
 
