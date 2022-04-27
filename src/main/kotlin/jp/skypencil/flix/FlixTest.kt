@@ -2,8 +2,9 @@
 package jp.skypencil.flix
 
 import ca.uwaterloo.flix.api.Flix
-import ca.uwaterloo.flix.language.CompilationMessage
 import ca.uwaterloo.flix.language.ast.Symbol
+import ca.uwaterloo.flix.tools.`Tester$`
+import java.nio.file.Files
 import javax.inject.Inject
 import jp.skypencil.flix.internal.`PackagerShell$`
 import jp.skypencil.flix.internal.WorkQueueFactory
@@ -18,8 +19,6 @@ import org.gradle.jvm.toolchain.JavaLauncher
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
-import scala.Function0
-import scala.Tuple2
 
 /**
  * Task to run Flix test cases.
@@ -83,52 +82,24 @@ abstract class TestAction : WorkAction<TestParameter> {
     }
 
     flix.setOptions(options)
-    val compileResult = flix.compile()
-    when {
-      compileResult.errors().isEmpty -> {
-        val results: scala.collection.immutable.List<TestResult> =
-            compileResult.get().tests.toList().map {
-              when (it) {
-                is Tuple2<*, *> -> {
-                  val defn: Function0<*> = it._2() as Function0<*>
-                  val sym = it._1() as Symbol.DefnSym
-                  try {
-                    when (val testResult = defn.apply()) {
-                      is Boolean -> TestResult(testResult, sym, "Returned $testResult.")
-                      else -> TestResult(true, sym, "Returned non-boolean value.")
-                    }
-                  } catch (ex: Exception) {
-                    TestResult(false, sym, ex.message)
-                  }
-                }
-                else -> null
+    // TODO report error in case of compilation error
+    flix.compile().map {
+      val results = `Tester$`.`MODULE$`.test(it)
+      val reportPath =
+          parameters
+              .getTextReport()
+              .map { regularFile ->
+                val path = regularFile.getAsFile().toPath()
+                val output = results.output(flix.formatter).toByteArray()
+                Files.write(path, output)
               }
-            } as
-                scala.collection.immutable.List<TestResult>
-        if (parameters.getTextReport().isPresent) {
-          parameters.getTextReport().get().asFile.bufferedWriter().use { writer ->
-            results.foreach {
-              writer.write(it.toString())
-              writer.newLine()
-            }
-          }
+              .getOrNull()
+      if (`PackagerShell$`.`MODULE$`.hasTestFailure(results)) {
+        if (reportPath != null) {
+          throw GradleException("Flix test failed, see the report generated at ${ reportPath }")
+        } else {
+          throw GradleException("Flix test failed")
         }
-        if (results.exists { !it.success }) {
-          if (parameters.getTextReport().isPresent) {
-            throw GradleException(
-                "Flix test failed, see the report generated at ${ parameters.getTextReport().get().asFile.absolutePath }")
-          } else {
-            throw GradleException("Flix test failed")
-          }
-        }
-      }
-      else -> {
-        val message =
-            compileResult
-                .errors()
-                .map { m: CompilationMessage -> m.message(flix.formatter) }
-                .reduce { l: String, r: String -> "$l,$r" }
-        throw GradleException("Failed to compile Flix code: $message")
       }
     }
   }
