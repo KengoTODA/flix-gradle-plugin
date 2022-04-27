@@ -4,6 +4,7 @@ package jp.skypencil.flix
 import ca.uwaterloo.flix.api.Flix
 import ca.uwaterloo.flix.language.ast.Symbol
 import ca.uwaterloo.flix.tools.`Tester$`
+import java.nio.file.Files
 import javax.inject.Inject
 import jp.skypencil.flix.internal.`PackagerShell$`
 import jp.skypencil.flix.internal.WorkQueueFactory
@@ -63,8 +64,8 @@ private data class TestResult(val success: Boolean, val sym: Symbol.DefnSym, val
 abstract class TestAction : WorkAction<TestParameter> {
   override fun execute() {
     val options =
-        `PackagerShell$`.`MODULE$`.createOptions(
-            parameters.getDestinationDirectory().get().asFile.toPath())
+      `PackagerShell$`.`MODULE$`.createOptions(
+        parameters.getDestinationDirectory().get().asFile.toPath())
 
     val flix = Flix()
     parameters.getSource().asFileTree.matching { it.include("*.flix") }.forEach {
@@ -81,22 +82,24 @@ abstract class TestAction : WorkAction<TestParameter> {
     }
 
     flix.setOptions(options)
-    val compileResult = flix.compile()
-    val results = `Tester$`.`MODULE$`.test(compileResult)
-    if (parameters.getTextReport().isPresent) {
-      parameters.getTextReport().get().asFile.bufferedWriter().use { writer ->
-        results.foreach {
-          writer.write(it.toString())
-          writer.newLine()
+    // TODO report error in case of compilation error
+    flix.compile().map {
+      val results = `Tester$`.`MODULE$`.test(it)
+      val reportPath =
+        parameters
+          .getTextReport()
+          .map { regularFile ->
+            val path = regularFile.getAsFile().toPath()
+            val output = results.output(flix.formatter).toByteArray()
+            Files.write(path, output)
+          }
+          .getOrNull()
+      if (`PackagerShell$`.`MODULE$`.hasTestFailure(results)) {
+        if (reportPath != null) {
+          throw GradleException("Flix test failed, see the report generated at ${ reportPath }")
+        } else {
+          throw GradleException("Flix test failed")
         }
-      }
-    }
-    if (results.exists { !it.success }) {
-      if (parameters.getTextReport().isPresent) {
-        throw GradleException(
-            "Flix test failed, see the report generated at ${ parameters.getTextReport().get().asFile.absolutePath }")
-      } else {
-        throw GradleException("Flix test failed")
       }
     }
   }
