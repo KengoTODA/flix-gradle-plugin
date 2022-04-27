@@ -15,7 +15,7 @@ To integrate Flix into a Gradle project with other languages, apply the conventi
 ```kotlin
 plugins {
   `application`
-  id("jp.skypencil.flix") version "1.1.0"
+  id("jp.skypencil.flix") version "1.1.2"
 }
 configure<JavaPluginExtension> {
   toolchain {
@@ -47,7 +47,7 @@ To build a Flix project created by `flix init` command, apply the base plugin `j
 import jp.skypencil.flix.FlixCompile
 import jp.skypencil.flix.FlixTest
 plugins {
-    id("jp.skypencil.flix-base")
+    id("jp.skypencil.flix-base") version "1.1.2"
 }
 
 val compileFlix = tasks.register<FlixCompile>("compileFlix") {
