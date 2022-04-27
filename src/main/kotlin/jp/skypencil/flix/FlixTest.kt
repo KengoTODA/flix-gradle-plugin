@@ -64,8 +64,8 @@ private data class TestResult(val success: Boolean, val sym: Symbol.DefnSym, val
 abstract class TestAction : WorkAction<TestParameter> {
   override fun execute() {
     val options =
-      `PackagerShell$`.`MODULE$`.createOptions(
-        parameters.getDestinationDirectory().get().asFile.toPath())
+        `PackagerShell$`.`MODULE$`.createOptions(
+            parameters.getDestinationDirectory().get().asFile.toPath())
 
     val flix = Flix()
     parameters.getSource().asFileTree.matching { it.include("*.flix") }.forEach {
@@ -86,14 +86,14 @@ abstract class TestAction : WorkAction<TestParameter> {
     flix.compile().map {
       val results = `Tester$`.`MODULE$`.test(it)
       val reportPath =
-        parameters
-          .getTextReport()
-          .map { regularFile ->
-            val path = regularFile.getAsFile().toPath()
-            val output = results.output(flix.formatter).toByteArray()
-            Files.write(path, output)
-          }
-          .getOrNull()
+          parameters
+              .getTextReport()
+              .map { regularFile ->
+                val path = regularFile.getAsFile().toPath()
+                val output = results.output(flix.formatter).toByteArray()
+                Files.write(path, output)
+              }
+              .getOrNull()
       if (`PackagerShell$`.`MODULE$`.hasTestFailure(results)) {
         if (reportPath != null) {
           throw GradleException("Flix test failed, see the report generated at ${ reportPath }")

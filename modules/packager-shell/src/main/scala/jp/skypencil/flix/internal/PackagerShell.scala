@@ -7,8 +7,8 @@ import ca.uwaterloo.flix.tools.Tester.TestResults
 import ca.uwaterloo.flix.tools.Tester.OverallTestResult.Failure
 
 /** A thin shell wrapping the Flix API, to ease invoking API written in Scala
- * from Kotlin code.
- */
+  * from Kotlin code.
+  */
 object PackagerShell {
   def createOptions(output: Path): Options = Options.Default.copy(
     output = Some(output)
