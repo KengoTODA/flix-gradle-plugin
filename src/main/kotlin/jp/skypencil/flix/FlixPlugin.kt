@@ -49,26 +49,22 @@ abstract class FlixPlugin : Plugin<Project> {
     val mainSourceSet =
         extension.sourceSets.create("main").apply {
           source =
-              project
-                  .objects
+              project.objects
                   .sourceDirectorySet("flix", "Flix main source")
                   .setSrcDirs(listOf("src/main/flix"))
           output =
-              project
-                  .objects
+              project.objects
                   .directoryProperty()
                   .fileValue(project.file("${project.buildDir}/classes/flix/main"))
         }
     val testSourceSet =
         extension.sourceSets.create("test").apply {
           source =
-              project
-                  .objects
+              project.objects
                   .sourceDirectorySet("flix", "Flix test source")
                   .setSrcDirs(listOf("src/test/flix"))
           output =
-              project
-                  .objects
+              project.objects
                   .directoryProperty()
                   .fileValue(project.file("${project.buildDir}/classes/flix/test"))
         }
@@ -86,8 +82,7 @@ abstract class FlixPlugin : Plugin<Project> {
           task.destinationDirectory.set(testSourceSet.output)
           task.launcher.set(launcher)
           task.report.set(
-              project
-                  .buildDir
+              project.buildDir
                   .resolve(ReportingExtension.DEFAULT_REPORTS_DIR_NAME)
                   .resolve("flix")
                   .resolve("main.txt"))

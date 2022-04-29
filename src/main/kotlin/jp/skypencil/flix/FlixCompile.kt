@@ -62,9 +62,11 @@ abstract class CompileAction : WorkAction<CompileParameter> {
             parameters.getDestinationDirectory().get().asFile.toPath())
 
     val flix = Flix()
-    parameters.getSource().asFileTree.matching { it.include("*.flix") }.forEach {
-      flix.addSourcePath(it.toPath())
-    }
+    parameters
+        .getSource()
+        .asFileTree
+        .matching { it.include("*.flix") }
+        .forEach { flix.addSourcePath(it.toPath()) }
     parameters.getClasspath().forEach {
       when {
         it.name.endsWith(".fpkg") -> flix.addSourcePath(it.toPath())
