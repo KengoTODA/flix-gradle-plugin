@@ -46,6 +46,6 @@ class FlixBasePlugin : Plugin<Project> {
   companion object {
     const val CONFIGURATION_FOR_COMPILER = "flixCompiler"
     const val DOWNLOAD_COMPILER_TASK_NAME = "downloadFlixCompiler"
-    const val COMPILER_VERSION = "v0.27.0"
+    const val COMPILER_VERSION = "v0.28.0"
   }
 }
