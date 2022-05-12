@@ -45,9 +45,8 @@ tasks.named<Task>("check") { dependsOn(testFlix) }
         .writeText(
             """
 // The main entry point.
-def main(_args: Array[String]): Int32 & Impure =
-  Console.printLine("Hello World!");
-  0 // exit code
+def main(): Unit & Impure =
+  Console.printLine("Hello World!")
 """)
     getProjectDir().resolve("test").mkdirs()
     getProjectDir()

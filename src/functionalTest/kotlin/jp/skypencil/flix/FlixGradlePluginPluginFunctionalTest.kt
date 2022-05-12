@@ -56,9 +56,8 @@ plugins {
         .writeText(
             """
 // The main entry point.
-def main(_args: Array[String]): Int32 & Impure =
-  Console.printLine("Hello World!");
-  0 // exit code
+def main(): Unit & Impure =
+  Console.printLine("Hello World!")
 """)
 
     // Run the build
@@ -89,9 +88,8 @@ plugins {
         .writeText(
             """
 // The main entry point.
-def main(_args: Array[String]): Int32 & Impure =
-  Console.printLine("Hello World!");
-  0 // exit code
+def main(): Unit & Impure =
+  Console.printLine("Hello World!")
 """)
     getProjectDir().resolve("src/test/flix").mkdirs()
     getProjectDir()
@@ -129,9 +127,8 @@ plugins {
         .writeText(
             """
 // The main entry point.
-def main(_args: Array[String]): Int32 & Impure =
-  Console.printLine("Hello World!");
-  0 // exit code
+def main(): Unit & Impure =
+  Console.printLine("Hello World!")
 """)
     getProjectDir().resolve("src/test/flix").mkdirs()
     getProjectDir()
@@ -171,9 +168,8 @@ plugins {
         .writeText(
             """
 // The main entry point.
-def main(_args: Array[String]): Int32 & Impure =
-  Console.printLine("Hello World!");
-  0 // exit code
+def main(): Unit & Impure =
+  Console.printLine("Hello World!")
 """)
     getProjectDir().resolve("README.md").writeText("# README")
 
@@ -216,9 +212,8 @@ java {
         .writeText(
             """
 // The main entry point.
-def main(_args: Array[String]): Int32 & Impure =
-  Console.printLine("Hello World!");
-  0 // exit code
+def main(): Unit & Impure =
+  Console.printLine("Hello World!")
 """)
 
     // Run the build
