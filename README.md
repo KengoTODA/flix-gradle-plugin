@@ -67,7 +67,6 @@ tasks.named<Task>("check") { dependsOn(testFlix) }
 ### Limitation
 
 * No support for resource files such as `src/main/resources` and `src/test/resources`.
-* Not tested with Flix v0.26.0 and older versions.
 * Test reports generated at `build/reports/flix/main.txt` is quite simple.
 
 ## Developers' guideline
