@@ -1,4 +1,4 @@
-plugins { id("com.gradle.enterprise") version "3.10.1" }
+plugins { id("com.gradle.enterprise") version "3.10.3" }
 
 rootProject.name = "flix-gradle-plugin"
 
