@@ -11,7 +11,7 @@ repositories {
 java { toolchain { languageVersion.set(JavaLanguageVersion.of("17")) } }
 
 dependencies {
-  implementation("com.diffplug.spotless:spotless-plugin-gradle:6.10.0")
+  implementation("com.diffplug.spotless:spotless-plugin-gradle:6.11.0")
   implementation("de.undercouch:gradle-download-task:5.2.1")
 }
 
