@@ -17,7 +17,7 @@ repositories {
 val flixCompiler = tasks.downloadFlixCompiler.map { it.outputs.files }
 
 dependencies {
-  implementation("de.undercouch:gradle-download-task:5.2.1")
+  implementation("de.undercouch:gradle-download-task:5.4.0")
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
