@@ -4,7 +4,7 @@ plugins {
   `maven-publish`
   id("com.gradle.plugin-publish") version "0.21.0"
   id("org.jetbrains.dokka") version "1.7.20"
-  id("org.jetbrains.kotlin.jvm") version "1.7.20"
+  id("org.jetbrains.kotlin.jvm") version "1.8.10"
 }
 
 group = "jp.skypencil.flix"
@@ -17,7 +17,7 @@ repositories {
 val flixCompiler = tasks.downloadFlixCompiler.map { it.outputs.files }
 
 dependencies {
-  implementation("de.undercouch:gradle-download-task:5.2.1")
+  implementation("de.undercouch:gradle-download-task:5.4.0")
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
